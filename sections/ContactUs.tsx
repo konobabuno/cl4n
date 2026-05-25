@@ -92,10 +92,10 @@ export default function ContactUs(section: ContactUs) {
   const {dict} = useI18n();
 
   return (
-    <section style={{ backgroundColor: newColorString }}>
+    <section style={{ backgroundColor: newColorString }} className="mt-0! pt-[116px] md:pt-58! lg:pt-[161px]!">
       <div className="container p-lat min-h-screen relative">
         <div className="extra-layout-top" style={{ backgroundColor: newColorString }}></div>
-        <div className="row justify-center relative z-8 pb-pink pt-green">
+        <div className="row justify-center relative z-8 pb-pink">
           <AnimateOnView  className="w-full lg:w-7/12">
             <h2 className="h1 text-center relative animate">
               <TitleText text={section.title} />

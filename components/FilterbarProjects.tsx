@@ -153,7 +153,7 @@ export default function FilterbarProjects(
                                     }
                                 }>
                                     <div className={`bg-offwhite w-[8px] h-[8px] rounded-full ${serviceInPath == undefined ? 'block' : 'hidden'}`}></div>
-                                    Todos
+                                    {dict.general.projects.all}
                                 </Link>
                                 {services && services.map((service) => (
                                     <Link key={service + 'desktopService'} href={`/projects/${service}`} className="flex gap-4 items-center animate" onClick={

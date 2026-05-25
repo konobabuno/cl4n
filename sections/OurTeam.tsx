@@ -145,7 +145,7 @@ export default function OurTeam(section: ourTeam) {
                 >
                     <AnimateOnView
                         
-                        className=" border-t border-off-opaque animate"
+                        className=" border-t border-off-opaque"
                     >
                         {section.members.map((member, index) => {
                             const WrapperTag = member.externalLink
