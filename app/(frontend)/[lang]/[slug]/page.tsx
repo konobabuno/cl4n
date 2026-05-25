@@ -37,10 +37,10 @@ export default async function Page({
     }
     return(
         <main>
+            <PageTransitionLoader />
             { pageData.sections &&
                 <Sections sections={pageData.sections} />
             }
-            <PageTransitionLoader />
 
         </main>
     );

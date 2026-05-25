@@ -568,6 +568,7 @@ main section:first-child .extra-layout-top{
 
 
 main section:last-child .extra-layout{
+  opacity: 1;
   position: absolute;
   left: 0;
   top: 100%;
