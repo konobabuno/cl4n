@@ -26,7 +26,7 @@ export async function generateMetadata({params} : {params: Promise<{ lang: Local
 
 export default async function ProjectsPage({params} : {params: Promise<{ lang: LocalePage, slug: string }>}) {
     const { lang } = await params;
-    const initialProjects = await fetchProjectsThumbnails(lang, 0, 8, 'asc');
+    const initialProjects = await fetchProjectsThumbnails(lang, 0, 14, 'asc');
     const quantity = await fetchNumberOfProjects(lang);
     return (
          <div className='relative'>
