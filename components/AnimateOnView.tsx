@@ -1,11 +1,9 @@
 "use client"
 import { useEffect, useRef, ReactNode, useState } from "react";
-import { Fragment } from "react";
 
 type AnimatedOnViewProps = {
   children: ReactNode;
   className?: string;
-  
 };
 
 function isAboveViewport(element: HTMLElement): boolean {
@@ -15,15 +13,25 @@ function isAboveViewport(element: HTMLElement): boolean {
 
 export default function AnimateOnView({ children, className }: AnimatedOnViewProps) {
     const animateRef = useRef<HTMLDivElement>(null);
+    const [hasAnimated, setHasAnimated] = useState(false);
+    const hasAnimatedRef = useRef(false);
     const timeOut = 80;
 
-     const handleAnimationEnd = (event: Event) => {
+    const markAnimated = () => {
+        if (hasAnimatedRef.current) return;
+        hasAnimatedRef.current = true;
+        setHasAnimated(true);
+    };
+
+    const handleAnimationEnd = (event: Event) => {
         const target = event.target as HTMLElement;
         target.classList.remove('in-view', 'animate', 'animate-container');
-        return;
-    }
+        markAnimated();
+    };
 
     useEffect(() => {
+        if (hasAnimatedRef.current) return;
+
         const element = animateRef.current;
         if (!element) return;
         const numberOfElements = element.querySelectorAll('.animate').length;
@@ -31,8 +39,7 @@ export default function AnimateOnView({ children, className }: AnimatedOnViewPro
         if (numberOfElements > 0) {
             element.classList.remove('animate-container');
         }
-       
-         
+
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
@@ -54,6 +61,7 @@ export default function AnimateOnView({ children, className }: AnimatedOnViewPro
                                 }
                             );
                         }
+                        markAnimated();
                         observer.unobserve(entry.target);
                     } else {
                         if (isAboveViewport(entry.target as HTMLElement)) {
@@ -62,6 +70,7 @@ export default function AnimateOnView({ children, className }: AnimatedOnViewPro
                             animatedElements.forEach((el) => {
                                 el.classList.remove('in-view', 'animate');
                             });
+                            markAnimated();
                         }
                     }
                 });
@@ -72,21 +81,23 @@ export default function AnimateOnView({ children, className }: AnimatedOnViewPro
             }
         );
 
-        setTimeout(() => {
+        const observeTimer = setTimeout(() => {
             observer.observe(element);
         }, 150);
 
         return () => {
+            clearTimeout(observeTimer);
             if (element) {
                 observer.unobserve(element);
             }
         };
     }, []);
 
-
-
     return (
-        <div ref={animateRef} className={`${className} animate-container`}>
+        <div
+            ref={animateRef}
+            className={`${className ?? ''} ${hasAnimated ? '' : 'animate-container'}`}
+        >
             {children}
         </div>
     );

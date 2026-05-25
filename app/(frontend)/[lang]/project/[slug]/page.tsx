@@ -9,6 +9,11 @@ import VideoHLS from "@/components/VideoHLS";
 import ImageComponent from "@/components/ImageComponent";
 import Image from "next/image";
 import AnimateOnView from "@/components/AnimateOnView";
+import {
+    galleryImageSizes,
+    galleryLayoutClassName,
+    getGalleryItemLayouts,
+} from "@/lib/projectGalleryLayout";
 
 export async function generateStaticParams() {
     const slugs = await fetchProjectSlugs();
@@ -45,6 +50,7 @@ export default async function Project({
         notFound();
     }
     const dict = await getDictionary(lang);
+    const galleryLayouts = getGalleryItemLayouts(projectData.gallery);
 
     return (
         <main>
@@ -121,107 +127,46 @@ export default async function Project({
                         <div className="container pt-green p-lat order-2">
                             <div className="row gap-y-4">
                                 {projectData?.gallery?.map((item, index) => {
+                                    const layout = galleryLayouts[index];
+                                    const layoutClass =
+                                        galleryLayoutClassName(layout);
+
                                     if (item.videoUrl) {
-                                             if (
-                                            item.verticalOrHorizontal ===
-                                            "vertical"
-                                        ) {
-                                            return (
-                                                <AnimateOnView
-                                                    key={item._key}
-                                                    className="md:w-6/12 lg:w-4/12"
-                                                >
-                                                    <VideoHLS
-                                                        videoUrl={item.videoUrl}
-                                                    />
-                                                </AnimateOnView>
-                                            );
-                                        } else {
-                                            if (
-                                                projectData?.gallery?.[
-                                                    index - 1
-                                                ]?.verticalOrHorizontal ===
-                                                "vertical"
-                                            ) {
-                                                return (
-                                                    <AnimateOnView
-                                                        key={item._key}
-                                                        className="md:w-6/12 lg:w-8/12 delay-anim-md" 
-                                                    >
-                                                        <VideoHLS
-                                                            videoUrl={item.videoUrl}
-                                                        />
-                                                    </AnimateOnView>
-                                                );
-                                            } else {
-                                                return (
-                                                    <AnimateOnView
-                                                        key={item._key}
-                                                        className="w-full"
-                                                    >
-                                                        <VideoHLS
-                                                            videoUrl={item.videoUrl}
-                                                        />
-                                                    </AnimateOnView>
-                                                );
-                                            }
-                                        }
-                                    } else if (item.image) {
-                                        if (
-                                            item.verticalOrHorizontal ===
-                                            "vertical"
-                                        ) {
-                                            return (
-                                                <AnimateOnView
-                                                    key={item._key}
-                                                    className="md:w-6/12 lg:w-4/12 h-full"
-                                                >
-                                                    <ImageComponent
-                                                        image={item.image}
-                                                        sizes="100vw, (min-width: 768px) 50vw, (min-width: 993px) 33vw"
-                                                        optionalAlt="Img Project"
-                                                        classContainer={`rounded-[10px] lg:rounded-[15px] overflow-hidden h-full block`}
-                                                    />
-                                                </AnimateOnView>
-                                            );
-                                        } else {
-                                            if (
-                                                projectData?.gallery?.[
-                                                    index - 1
-                                                ]?.verticalOrHorizontal ===
-                                                "vertical"
-                                            ) {
-                                                return (
-                                                    <AnimateOnView
-                                                        key={item._key}
-                                                        className="md:w-6/12 lg:w-8/12 h-full delay-anim-md"
-                                                    >
-                                                        <ImageComponent
-                                                            image={item.image}
-                                                            sizes="100vw, (min-width: 768px) 50vw (min-width: 993px) 66vw"
-                                                            optionalAlt="Img Project"
-                                                            classContainer={`rounded-[10px] lg:rounded-[15px] overflow-hidden h-full block`}
-                                                        />
-                                                    </AnimateOnView>
-                                                );
-                                            } else {
-                                                return (
-                                                    <AnimateOnView
-                                                        key={item._key}
-                                                        className="w-full "
-                                                    >
-                                                        <ImageComponent
-                                                            image={item.image}
-                                                            sizes="100vw"
-                                                            optionalAlt="Img Project"
-                                                            classContainer={`rounded-[10px] lg:rounded-[15px] overflow-hidden h-full block`}
-                                                            classImg={` object-cover object-center`}
-                                                        />
-                                                    </AnimateOnView>
-                                                );
-                                            }
-                                        }
+                                        return (
+                                            <AnimateOnView
+                                                key={item._key}
+                                                className={layoutClass}
+                                            >
+                                                <VideoHLS
+                                                    videoUrl={item.videoUrl}
+                                                />
+                                            </AnimateOnView>
+                                        );
                                     }
+
+                                    if (item.image) {
+                                        return (
+                                            <AnimateOnView
+                                                key={item._key}
+                                                className={`${layoutClass} h-full`}
+                                            >
+                                                <ImageComponent
+                                                    image={item.image}
+                                                    sizes={galleryImageSizes(
+                                                        layout,
+                                                    )}
+                                                    optionalAlt="Img Project"
+                                                    classContainer={`rounded-[10px] lg:rounded-[15px] overflow-hidden h-full block`}
+                                                    classImg={
+                                                        layout === "full"
+                                                            ? "object-cover object-center"
+                                                            : undefined
+                                                    }
+                                                />
+                                            </AnimateOnView>
+                                        );
+                                    }
+
                                     return null;
                                 })}
                             </div>
