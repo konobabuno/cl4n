@@ -1,0 +1,35 @@
+{
+    "general": {
+        "header": {
+            "menu": "Menu"
+        },
+        "footer": {
+            "rights": "All rights reserved ©CL4N"
+        },
+        "project": {
+            "project": "Project",
+            "challenge": "The Challenge",
+            "team": "Description"
+        },
+        "contact": {
+            "name": "Full Name *",
+            "company": "Company",
+            "email": "Email *",
+            "subject": "Subject *",
+            "message": "Write your message here",
+            "send": "Send message"
+        },
+        "projects": {
+            "services": "Services",
+            "all": "All",
+            "list": "List",
+            "grid": "Grid",
+            "order": "Order by",
+            "recent": "More recent",
+            "oldest": "older",
+            "filters": "Filters",
+            "apply": "Apply Filters"
+        }
+        
+    }
+}
