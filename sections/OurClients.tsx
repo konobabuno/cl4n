@@ -98,14 +98,28 @@ export default function OurClients(section: OurClients) {
             const indexInGrid = sequence[sequenceIndexRef.current];
             const currentContainer = containerLogos.current[indexInGrid];
             if (!currentContainer) return;
+            const visibleInOthers = new Set<number>();
+            sequence.forEach((slotIdx) => {
+                if (slotIdx === indexInGrid) return;
+                const c = containerLogos.current[slotIdx];
+                if (!c) return;
+                const di = Number(c.dataset.index ?? -1);
+                if (di >= 0) visibleInOthers.add(di);
+            });
+            const currentDataIndex = Number(
+                currentContainer.dataset.index ?? -1,
+            );
+            if (currentDataIndex >= 0) visibleInOthers.add(currentDataIndex);
 
-            // Si ya tiene el mismo índice, avanza rápido para no repetir
-            const dataIndex = Number(currentContainer.dataset.index ?? -1);
-            if (idxRef.current === dataIndex) {
+            let attempts = 0;
+            while (
+                visibleInOthers.has(idxRef.current) &&
+                attempts < objectURLs.length
+            ) {
                 idxRef.current = (idxRef.current + 1) % objectURLs.length;
+                attempts++;
             }
 
-            // OUT anim
             const oldImage = currentContainer.querySelector("img");
             if (oldImage) {
                 oldImage.classList.add("old");
@@ -138,13 +152,6 @@ export default function OurClients(section: OurClients) {
                 duration: 0.4,
                 ease: "customEase",
                 onComplete: () => {
-                    currentContainer.dataset.title =
-                        currentContainer.dataset.nextTitle || next.name || "";
-                    currentContainer.dataset.index =
-                        currentContainer.dataset.nextIndex ||
-                        String(idxRef.current);
-                    delete currentContainer.dataset.nextTitle;
-                    delete currentContainer.dataset.nextIndex;
                     currentContainer.classList.remove("is-swapping");
                 },
             });
@@ -204,8 +211,8 @@ export default function OurClients(section: OurClients) {
             clearTypewriter();
             element.textContent = "";
             document.querySelectorAll(".titleTag").forEach((el) => {
-                (el as HTMLElement).classList.remove("!opacity-0");
-                (el as HTMLElement).classList.add("!opacity-100");
+                (el as HTMLElement).classList.remove("opacity-0!");
+                (el as HTMLElement).classList.add("opacity-100!");
             });
             [...text].forEach((char, i) => {
                 const t = setTimeout(() => {
@@ -237,8 +244,8 @@ export default function OurClients(section: OurClients) {
             ) as HTMLElement | null;
             if (titleElement) titleElement.textContent = "";
             document.querySelectorAll(".titleTag").forEach((el) => {
-                (el as HTMLElement).classList.remove("!opacity-100");
-                (el as HTMLElement).classList.add("!opacity-0");
+                (el as HTMLElement).classList.remove("opacity-100!");
+                (el as HTMLElement).classList.add("opacity-0!");
             });
             clearTypewriter();
             startInterval();
