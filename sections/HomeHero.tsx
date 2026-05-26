@@ -424,7 +424,6 @@ export default function HomeHero(section: HomeHero) {
                                             className="pointer-events-auto block relative project-in-hero" data-friction="0.02"
                                         >
 
-                                            <PreviewProject videoUrl={section.projects[3].videoPreview || ''} />
 
                                             <ImageComponent
                                                 image={section.projects[3].thumbnail}
@@ -433,6 +432,9 @@ export default function HomeHero(section: HomeHero) {
                                                 classContainer="h-full rounded-[15px] overflow-hidden"
                                                 classImg="h-full"
                                             />
+
+                                            <PreviewProject videoUrl={section.projects[3].videoPreview || ''} />
+
 
                                             <div className="absolute left-6 bottom-6  bg-gray backdrop-blur-[20px]  gap-4 items-center py-2 px-6 rounded-[5px] hidden lg:flex tag-hero-project pointer-events-none  max-w-[75%]">
                                                 <span className="dot bg-offwhite"></span>
