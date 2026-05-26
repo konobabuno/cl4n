@@ -57,9 +57,20 @@ export default function RenderProjects({
             : true,
     );
     const sentinelRef = useRef<HTMLDivElement | null>(null);
-    const limit = 8;
+    const limit = 14;
 
     CustomEase.create("customEase", "0.19, 1, 0.22, 1");
+
+    const gsapCtxRef = useRef<gsap.Context | null>(null);
+
+    useEffect(() => {
+        if (!containerRef.current) return;
+        gsapCtxRef.current = gsap.context(() => {}, containerRef);
+        return () => {
+            gsapCtxRef.current?.revert();
+            gsapCtxRef.current = null;
+        };
+    }, []);
 
     useLayoutEffect(() => {
         const container = containerRef.current;
@@ -70,12 +81,22 @@ export default function RenderProjects({
         prevGridOrList.current = gridOrList;
         prevOrder.current = order;
 
-        const ctx = gsap.context(() => {
+        // Si el context aún no se creó (primer render antes de mount effect),
+        // usamos uno temporal solo para este run.
+        const ctx = gsapCtxRef.current ?? gsap.context(() => {}, container);
+
+        ctx.add(() => {
             const allItems = gsap.utils.toArray<HTMLElement>("[data-project-item]");
             const items = (gridOrListChanged || orderChanged)
                 ? allItems
                 : allItems.filter((el) => el.dataset.new === "true");
             if (!items.length) return;
+            // Marcamos los items como "ya reclamados" antes de animar para
+            // que re-renders rápidos (paginación por scroll) no los vuelvan
+            // a meter en una nueva animación y provocan flashazos.
+            items.forEach((el) => el.setAttribute("data-new", "false"));
+            // Solo matamos tweens de los items que vamos a animar, no de
+            // los que están en medio de un stagger anterior.
             gsap.killTweensOf(items);
             gsap.set(items, { opacity: 0 });
             gsap.to(items, {
@@ -84,13 +105,8 @@ export default function RenderProjects({
                 stagger: 0.1,
                 delay: 0.1,
                 ease: "customEase",
-                onComplete: () => {
-                    items.forEach((el) => el.setAttribute("data-new", "false"));
-                },
             });
-        }, container);
-
-        return () => ctx.revert();
+        });
     }, [allProjects.length, gridOrList, order]);
 
     useEffect(() => {
@@ -179,10 +195,15 @@ export default function RenderProjects({
         return () => observer.disconnect();
     }, [hasMore, isFetching, limit, order, start, totalProjects]);
 
+    const isFirstOrderRun = useRef(true);
     useEffect(() => {
+        if (isFirstOrderRun.current) {
+            isFirstOrderRun.current = false;
+            return;
+        }
         setAllProjects([]);
         setStart(0);
-        setHasMore(typeof totalProjects === "number" ? initialProjects.length < totalProjects : true);
+        setHasMore(typeof totalProjects === "number" ? 0 < totalProjects : true);
         fetchProjects(0, limit, order);
     }, [order]);
 
@@ -260,7 +281,7 @@ export default function RenderProjects({
                         }}
                     >
                         <p
-                            className={`${gridOrList === "list" ? "h1 project-title text-center" : "pt-4"}`}
+                            className={`uppercase ${gridOrList === "list" ? "h1 project-title text-center" : "pt-4"}`}
                         >
                             {p.title}
                         </p>
