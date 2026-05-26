@@ -50,7 +50,19 @@ export default defineType({
             name: "services",
             type: "array",
             title: "Services",
-            of: [{ type: "reference", to: [{ type: "service" }] }],
+            of: [{
+                type: "object",
+                fields: [
+                    defineField({
+                        name: "service",
+                        type: "reference",
+                        to: [{ type: "service" }],
+                        options: {
+                            disableNew: true,
+                        },
+                    }),
+                ],
+            }],
             validation: (Rule) =>
                 Rule.unique().error(
                     "You cannot select the same service more than once.",
