@@ -224,7 +224,7 @@ export default function OurTeam(section: ourTeam) {
                                                                                     }
                                                                                     sizes="(max-width: 768px) 100vw, (max-width: 993px) 75vw, 50vw"
                                                                                     optionalAlt="Img Project"
-                                                                                    classContainer="rounded-[15px] overflow-hidden w-full !aspect-[1.6] object-cover object-center "
+                                                                                    classContainer="rounded-[15px] overflow-hidden w-full !aspect-[1.4] object-cover object-center "
                                                                                     classImg="w-full h-full object-cover object-center"
                                                                                 />
                                                                             </div>
