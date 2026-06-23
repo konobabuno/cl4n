@@ -6,9 +6,11 @@ import Hls from "hls.js";
 
 interface VideoHLSProps {
     videoUrl: string;
+    classContainer?: string;
+    classVideo?: string;
 }
 
-export default function VideoHLS({ videoUrl }: VideoHLSProps) {
+export default function VideoHLS({ videoUrl, classContainer, classVideo }: VideoHLSProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isMuted, setIsMuted] = useState(true);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -212,9 +214,13 @@ export default function VideoHLS({ videoUrl }: VideoHLSProps) {
         };
     }, []);
 
+    const videoClassName = isFullscreen
+        ? "w-full! h-full! object-contain! bg-black"
+        : `w-full h-auto ${classVideo}`;
+
     return (
         <div
-            className="relative overflow-hidden rounded-[15px] "
+            className={`relative overflow-hidden rounded-[15px] ${classContainer}`}
             style={{
                 aspectRatio: aspectRatio ? `${1 / aspectRatio}` : "1.7777",
             }}
@@ -225,7 +231,7 @@ export default function VideoHLS({ videoUrl }: VideoHLSProps) {
                 muted
                 playsInline
                 preload="metadata"
-                className="w-full h-auto"
+                className={videoClassName}
             />
             <div
                 className={`absolute bg-gray backdrop-blur-[20px] w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 bottom-6 left-6 md:left-8 md:bottom-8 rounded-full cursor-pointer flex justify-center items-center video ${isPlaying ? "" : "pause"}`}

@@ -25,6 +25,7 @@ import { SINGLETONS } from './config/singletons/singletons'
 // Define the singleton types for easy reference
 const singletonTypes = new Set(SINGLETONS.map(singleton => singleton._type))
 const singletonActions = new Set(["publish", "discardChanges", "restore"]);
+const lockedDocumentTypes = new Set(["service"]);
 
 export default defineConfig({
   basePath: '/studio',
@@ -34,7 +35,7 @@ export default defineConfig({
   schema: {
     types: schema,
     templates: (prev) => [
-      ...prev.filter((template) => !['page'].includes(template.id)),
+      ...prev.filter((template) => !['page', 'service', 'photo'].includes(template.id)),
       {
         id: 'page-es',
         title: 'Page (ES)',
@@ -94,14 +95,19 @@ export default defineConfig({
     }),
     internationalizedArray({
       languages: LANGUAGES,
-      defaultLanguages: [defaultLocale], // Languages to show by default in the array editor
-      fieldTypes: ['string'], // Field types to support
+      defaultLanguages: [defaultLocale],
+      fieldTypes: ['string'],
     })
   ],
   document: {
-    actions: (input, context) =>
-      singletonTypes.has(context.schemaType)
+    actions: (input, context) => {
+      if (lockedDocumentTypes.has(context.schemaType)) {
+        return [];
+      }
+
+      return singletonTypes.has(context.schemaType)
         ? input.filter(({ action }) => action && singletonActions.has(action))
-        : input,
+        : input;
+    },
   },
 })

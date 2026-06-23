@@ -13,29 +13,39 @@ export const structure: StructureResolver = (S, context) =>
         .title("Content")
         .items([
             ...SINGLETONS.map((singleton) =>
-                S.listItem()
-                    .title(singleton.title)
-                    .id(singleton.id)
-                    .child(
-                        S.list()
-                            .title(singleton.title)
-                            .id(singleton.id)
-                            .items(
-                                LANGUAGES.map((language) =>
-                                    S.documentListItem()
-                                        .schemaType(singleton._type)
-                                        .id(`${singleton.id}-${language.id}`)
-                                        .title(
-                                            `${singleton.title} (${language.id.toLocaleUpperCase()})`,
-                                        ),
-                                ),
-                            )
-                            .canHandleIntent(
-                                (intentName, params) =>
-                                    intentName === "edit" &&
-                                    params.id.startsWith(singleton.id),
-                            ),
-                    ),
+                singleton.localized
+                    ? S.listItem()
+                          .title(singleton.title)
+                          .id(singleton.id)
+                          .child(
+                              S.list()
+                                  .title(singleton.title)
+                                  .id(singleton.id)
+                                  .items(
+                                      LANGUAGES.map((language) =>
+                                          S.documentListItem()
+                                              .schemaType(singleton._type)
+                                              .id(`${singleton.id}-${language.id}`)
+                                              .title(
+                                                  `${singleton.title} (${language.id.toLocaleUpperCase()})`,
+                                              ),
+                                      ),
+                                  )
+                                  .canHandleIntent(
+                                      (intentName, params) =>
+                                          intentName === "edit" &&
+                                          params.id.startsWith(singleton.id),
+                                  ),
+                          )
+                    : S.listItem()
+                          .title(singleton.title)
+                          .id(singleton.id)
+                          .child(
+                              S.document()
+                                  .schemaType(singleton._type)
+                                  .documentId(singleton.id)
+                                  .title(singleton.title),
+                          ),
             ),
             S.listItem()
                 .title("Pages (EN)")
@@ -90,15 +100,15 @@ export const structure: StructureResolver = (S, context) =>
                         ]),
                 ),
             S.listItem()
-                .title("Services")
-                .id("services-projects")
+                .title("Tags")
+                .id("tags")
                 .icon(DocumentIcon)
                 .child(
                     S.documentList()
-                        .title("Services")
-                        .filter('_type == "service"')
+                        .title("Tags")
+                        .filter('_type == "tag"')
                         .apiVersion(apiVersion),
-                ),
+            ),
             orderableDocumentListDeskItem({
                 type: "project",
                 title: "Order Projects",
@@ -106,25 +116,13 @@ export const structure: StructureResolver = (S, context) =>
                 createIntent: true,
                 S,
                 context,
-                
             }),
-            //CREATE ADDITIONAL LIST ITEMS FOR OTHER DOCUMENT TYPES BELOW
-            // S.listItem()
-            //   .title('Pages (ES)')
-            //   .id('pages-es')
-            //   .icon(DocumentIcon)
-            //   .child(
-            //     S.documentList()
-            //       .title('Pages (ES)')
-            //       .filter('_type == "page" && language == "es"')
-            // ),
-            // S.listItem()
-            //   .title('Pages (EN)')
-            //   .id('pages-en')
-            //   .icon(DocumentIcon)
-            //   .child(
-            //     S.documentList()
-            //       .title('Pages (EN)')
-            //       .filter('_type == "page" && language == "en"')
-            // ),
+            orderableDocumentListDeskItem({
+                type: "service",
+                title: "Order Services",
+                id: "orderable-services",
+                createIntent: true,
+                S,
+                context,
+            }),
         ]);

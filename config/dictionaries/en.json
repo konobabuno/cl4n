@@ -9,7 +9,7 @@
         "project": {
             "project": "Project",
             "challenge": "The Challenge",
-            "team": "Description"
+            "info": "Description"
         },
         "contact": {
             "name": "Full Name *",
@@ -21,6 +21,7 @@
         },
         "projects": {
             "services": "Services",
+            "tags": "Tags",
             "all": "All",
             "list": "List",
             "grid": "Grid",
@@ -28,7 +29,9 @@
             "recent": "More recent",
             "oldest": "older",
             "filters": "Filters",
-            "apply": "Apply Filters"
+            "alphabetical": "Alphabetical",
+            "apply": "Apply Filters",
+            "photography": "Photography"
         }
         
     }

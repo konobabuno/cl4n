@@ -193,7 +193,7 @@ export default function HomeHero(section: HomeHero) {
   
     return (
         <section className="home-hero" ref={rootRef}>
-            <div className="h-[200vh] ">
+            <div className="h-[200vh]">
                 <AnimateOnView className="container p-lat height-for-hero sticky top-12" >
                      {/* TOP ROW */}
                     <div className="absolute left-0 right-0 top-0 translate-y-[-77px] md:translate-y-[-96px] lg:-translate-y-12  pointer-events-none ">

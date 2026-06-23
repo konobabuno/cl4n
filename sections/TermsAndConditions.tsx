@@ -19,10 +19,10 @@ export default function TermsAndConditions(section: TermsAndConditions) {
     }
     let newColorString: string = newColor.join('');
     return(
-        <section style={{ backgroundColor: newColorString }}>
+        <section className="mt-0! pt-[117px] md:pt-[146px] lg:pt-[141px]" style={{ backgroundColor: newColorString }}>
             <div className="container p-lat relative">
                 <div className="extra-layout-top" style={{ backgroundColor: newColorString }}></div>
-                <div className="row pt-blue pb-pink justify-center">
+                <div className="row pb-pink justify-center">
                     <AnimateOnView className="w-full md:w-9/12 lg:w-6/12">
                         {section.headline && (
                             <div className="flex justify-center">

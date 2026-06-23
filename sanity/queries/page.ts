@@ -1,12 +1,13 @@
 import { groq } from "next-sanity";
 import { METADATA, IMG } from "./lib";
-import { TEXT_AND_IMAGE, OUR_CLIENTS, SERVICES_CTA, CONTACT_CTA, GENERAL_HERO, ABOUT_US, OUR_TEAM, CONTACT_US, TERMS_AND_CONDITIONS, FEATURED_PROJECTS_QUERY, SERVICES_DESCRIPTION_QUERY, GENERAL_HERO_QUERY, HOME_HERO_QUERY} from "./section";
+import { TEXT_AND_IMAGE, OUR_CLIENTS, SERVICES_CTA, CONTACT_CTA, GENERAL_HERO, ABOUT_US, OUR_TEAM, CONTACT_US, TERMS_AND_CONDITIONS, FEATURED_PROJECTS_QUERY, SERVICES_DESCRIPTION_QUERY, GENERAL_HERO_QUERY, HOME_HERO_QUERY, VIDEO_HERO_QUERY} from "./section";
 
 export const HOME = groq`
 *[_type == "home" && language == $lang][0] {
     ${METADATA},
     sections[] {
       ${HOME_HERO_QUERY},
+      ${VIDEO_HERO_QUERY},
       ${GENERAL_HERO_QUERY},
       ${TEXT_AND_IMAGE},
       ${OUR_CLIENTS},
@@ -50,11 +51,24 @@ export const PROJECT = groq`
 *[_type == "project" && slug.current == $slug && language == $lang][0] {
     ${METADATA},
     title,
-    team, 
+    info, 
     videoUrl,
     timeOfProject,
-    services[]->{
+    "services": select(
+      defined(service) => [
+        service->{
+          _id,
+          "title": coalesce(
+            title[language == $lang][0].value,
+            title[language == "es"][0].value
+          )
+        }
+      ],
+      []
+    ),
+    tags[]->{
       _id,
+      slug{current},
       "title": coalesce(
         title[language == $lang][0].value,
         title[language == "es"][0].value
@@ -62,11 +76,24 @@ export const PROJECT = groq`
     },
     gallery[]{
       _key,
-      image{
-        ${IMG}
-      },
-      videoUrl,
-      verticalOrHorizontal,
+      orientation,
+      items[]{
+        _type,
+        _key,
+        _type == "image" => {
+          "image": {
+            ${IMG}
+          }
+        },
+        _type == "video" => {
+          "video": {
+            url
+          }
+        }
+      }
+    },
+    sections[] {
+      ${FEATURED_PROJECTS_QUERY},
     }
 }`;
 
@@ -82,3 +109,11 @@ export const PROJECT_SLUG = groq`
   }
 `;
 
+export const PHOTO_PAGE_QUERY = groq`
+*[_type == "photoPage"][0] {
+  photos[$start...$end] {
+    _key,
+    ${IMG}
+  }
+}
+`

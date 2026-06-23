@@ -1,9 +1,6 @@
-import { fetchSanityServicesLinkedToProjects } from '@/sanity/services/fetchProjects';
-import InnerProjectsPage from '@/components/InnerProjectsPage';
+import { fetchSanityServices } from '@/sanity/services/fetchProjects';
 import { PageTransitionLoader } from '@/components/PageTransitionLoader';
-import { ProjectsTransitionHandler } from '@/components/ProjectsTransitionHandler';
-
-
+import ServicesLinks from '@/components/servicesLinks';
 
 export default async function ProjectsLayout({
     children,
@@ -13,17 +10,23 @@ export default async function ProjectsLayout({
     params: Promise<{ lang: string }>;
   }) {
     const { lang } = await params;
-    const servicesLinkedToProjects = await fetchSanityServicesLinkedToProjects(lang as LocalePage);
+    const services = await fetchSanityServices(lang as LocalePage);
     
     return (
       <main>
         <PageTransitionLoader/>
-        <ProjectsTransitionHandler />
-        <section className="pb-pink min-h-screen relative">
-              <InnerProjectsPage services={servicesLinkedToProjects}>
-                  {children}
-              </InnerProjectsPage>
+        <section className="mt-0! pt-[117px] md:pt-[146px] lg:pt-[141px]">
+          <div className="container p-lat">
+            <div className="row justify-center">
+              <div className="col-lg-6">
+                  <div className="flex flex-wrap gap-4 justify-center">
+                    <ServicesLinks services={services} lang={lang as LocalePage} />
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
+        {children}
       </main>
     );
 }

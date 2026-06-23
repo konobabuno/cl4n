@@ -29,7 +29,7 @@ export default function Header({
     return (
         <header className="fixed top-8 md:top-12 w-full z-50 pointer-events-none">
             <div
-                className={`fixed bg-black top-0 left-0 w-full h-full cursor-pointer transition-op ${showNavbar ? "opacity-50 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+                className={`fixed bg-black top-0 left-0 w-full h-full cursor-pointer transition-op ${showNavbar ? "opacity-70 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
                 onClick={toggleNavbar}
             ></div>
             <div className="container p-lat z-10 relative pb-4 md:pb-6 pointer-events-none">

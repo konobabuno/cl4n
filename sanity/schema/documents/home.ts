@@ -11,7 +11,8 @@ const sections: string[] = [
   "featuredProjects",
   "termsAndConditions",
   "generalHero",
-  "servicesDescription"
+  "servicesDescription",
+  "videoHero"
 ];
 const mappedSections = sections?.map((section) => ({ type: section }));
 

@@ -10,6 +10,7 @@ import TermsAndConditions from "@/sections/TermsAndConditions";
 import FeaturedProjects from "@/sections/FeaturedProjects";
 import ServicesDescription from "@/sections/ServicesDescription";
 import HomeHero from "@/sections/HomeHero";
+import VideoHero from "@/sections/VideoHero";
 
 const componentMap: { [key: string]: React.ComponentType<any> } = {
   "homeHero": HomeHero,
@@ -24,6 +25,7 @@ const componentMap: { [key: string]: React.ComponentType<any> } = {
   "termsAndConditions": TermsAndConditions,
   "featuredProjects": FeaturedProjects,
   "servicesDescription": ServicesDescription,
+  "videoHero": VideoHero,
 }; 
 
 export default function Sections({ sections }: { sections?: Section[] }) {
@@ -42,7 +44,7 @@ export default function Sections({ sections }: { sections?: Section[] }) {
             </div>
           );
         }
-        return <Component {...section} key={section._key}  />;
+        return <Component {...section} key={section._key} />;
       })}
     </>
   );

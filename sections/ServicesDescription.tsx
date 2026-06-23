@@ -9,7 +9,7 @@ type ServicesDescription = {
         _key: string;
         name: string;
         description: string;
-        service: { title: string; language: string }
+        service: { title: string; language: string; slug: string }
     }[];
 }
                 
@@ -38,7 +38,7 @@ export default function ServicesDescription(section: ServicesDescription) {
                         key={service._key}
                         linkType="page" 
                         page={
-                            {_type: 'service', slug: service.service.title, language: service.service.language}
+                            {_type: 'service', slug: service.service.slug, language: service.service.language}
                         }  
                         className="w-full md:w-6/12 lg:w-4/12 h-80 md:h-[282px] lg:h-[332px]">
                             <div className="p-8 lg:p-12 h-full flex flex-col border circular-border rounded-[15px]">

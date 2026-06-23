@@ -10,6 +10,8 @@ import settings from './documents/settings';
 import project from './documents/project';
 import projects from './documents/projects';
 import service from './documents/service';
+import tag from './documents/tag';
+import photo from './documents/photo';
 
 // Sections
 import homeHero from './sections/homeHero';
@@ -24,6 +26,7 @@ import contactUs from './sections/contactUs';
 import featuredProjects from './sections/featuredProjects';
 import termsAndConditions from './sections/termsAndConditions';
 import servicesDescription from './sections/servicesDescription';
+import videoHero from './sections/videoHero';
 
 const objects = [
   link,
@@ -36,7 +39,9 @@ const documents = [
   settings,
   project,
   projects,
-  service
+  service,
+  tag,
+  photo,
 ]
 const sections = [
   homeHero,
@@ -51,6 +56,7 @@ const sections = [
   termsAndConditions,
   featuredProjects,
   servicesDescription, 
+  videoHero,
 ]
 
 export const schema = [

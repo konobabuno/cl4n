@@ -42,6 +42,15 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  const projectsMatch = pathname.match(/^\/(en|es)\/projects\/?$/);
+
+  if (projectsMatch) {
+    const newUrl = request.nextUrl.clone();
+    newUrl.pathname = `/${projectsMatch[1]}/projects/long-format`;
+
+    return NextResponse.redirect(newUrl);
+  }
+
   const pathnameIsMissingLocale = locales.every(
     (locale) =>
       !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`,

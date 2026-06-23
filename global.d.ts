@@ -75,23 +75,38 @@ type Home = {
     sections?: Section[];
 };
 
+
+
 type Project = {
     readonly _type: "project";
     metadata?: SeoMetadata;
     title?: string;
     slug?: { current: string };
     videoUrl?: string;
-    team?: string;
+    info?: string;
     timeOfProject?: string;
-    services?: { _id: string; title: string }[];
+    tags?: { _id: string; slug: string; title: string }[];
+    services?: { _id: string; title: string, slug: string };
     sections?: Section[];
     gallery?: {
         _key: string;
-        image: Image;
-        videoUrl?: string;
-        verticalOrHorizontal?: "vertical" | "horizontal";
+        orientation: "vertical" | "horizontal";
+        items: GalleryItem[];
     }[];
+    sections?: Section[];
 };
+
+type GalleryItem = {
+    _key: string;
+    orientation: "vertical" | "horizontal" | "bigImage";
+    items: {
+        _key: string;
+        image?: Image;
+        video?: {
+            url: string;
+        };
+    }[] | null;
+}
 
 type Color = {
     label: string;
@@ -102,8 +117,22 @@ type ProjectPost = {
     _id: string;
     title: string;
     slug: { current: string };
-    services: { title: string }[];
+    service: SanityService;
+    services: SanityService[];
+    tags?: { _id: string; slug: string; title: string }[];
     thumbnail: Image;
     videoPreview: string;
     language: string;
+}
+
+type SanityService = {
+    _id: string;
+    slug: { current: string };
+    title: string;
+}
+
+type SanityTag = {
+    _id: string;
+    slug: { current: string };
+    title: string;
 }

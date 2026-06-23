@@ -1,5 +1,6 @@
 import { sanityFetch } from "@/sanity/lib/live";
-import { HOME, PAGE, PROJECT, PAGE_SLUG, PROJECT_SLUG, PROJECTS_PAGE_METADATA } from "../queries/page";
+import { HOME, PAGE, PROJECT, PAGE_SLUG, PROJECT_SLUG, PROJECTS_PAGE_METADATA, PHOTO_PAGE_QUERY } from "../queries/page";
+import { TAGS_SLUG_QUERY } from "../queries/projects";
 import { locales } from "@/config/i18n/i18nConfig"; 
 
 export const fetchHome = async (lang: LocalePage ): Promise<Home> => {
@@ -76,6 +77,14 @@ export const fetchProjectSlugs = async (): Promise<{ lang: LocalePage; slug: str
     })
   );
   return slugsArrays.flat();
+}
+
+export const fetchPhotoPage = async (start: number, end: number): Promise<{ photos: Image[] }> => {
+  const { data } = await sanityFetch({
+    query: PHOTO_PAGE_QUERY,
+    params: { start, end },
+  });
+  return data;
 }
 
 

@@ -7,13 +7,10 @@ import { getDictionary } from "@/config/i18n/dictionaries";
 import { PageTransitionLoader } from "@/components/PageTransitionLoader";
 import VideoHLS from "@/components/VideoHLS";
 import ImageComponent from "@/components/ImageComponent";
-import Image from "next/image";
 import AnimateOnView from "@/components/AnimateOnView";
-import {
-    galleryImageSizes,
-    galleryLayoutClassName,
-    getGalleryItemLayouts,
-} from "@/lib/projectGalleryLayout";
+import Sections from "@/components/Sections";
+import GalleryItem from "@/components/GalleryItem";
+
 
 export async function generateStaticParams() {
     const slugs = await fetchProjectSlugs();
@@ -50,129 +47,104 @@ export default async function Project({
         notFound();
     }
     const dict = await getDictionary(lang);
-    const galleryLayouts = getGalleryItemLayouts(projectData.gallery);
-
     return (
         <main>
             <PageTransitionLoader />
             {projectData?.videoUrl && (
-                <section className={`pb-pink min-h-screen relative flex flex-col`}>
-                    <AnimateOnView className={`container p-lat delay-anim ${(projectData?.gallery?.length ?? 0) > 0 ? 'order-0 ' : 'order-1 pt-green'}`}>
-                        <VideoHLS videoUrl={projectData.videoUrl} />
-                    </AnimateOnView>
-                    <div className={`container p-lat  ${(projectData?.gallery?.length ?? 0) > 0 ? 'order-1 pt-green' : 'order-0 pt-red'}`}>
-                        <div className="row justify-center lg:justify-start">
-                            {projectData?.title && (
-                                <AnimateOnView className="w-full md:w-10/12 lg:w-6/12 flex flex-col gap-4">
-                                    <p className="detalle uppercase text-center lg:text-start">
-                                        {dict.general.project.project}
-                                    </p>
-                                    <h1 className="h1 text-center lg:text-start">
-                                        {projectData.title}
-                                    </h1>
-                                </AnimateOnView>
-                            )}
-
-                            {(!!projectData?.team ||
-                                (projectData?.services?.length ?? 0) > 0) && (
-                                <>
-                                    <div className="w-1/12 hidden lg:block"></div>
-                                    <AnimateOnView className="w-full md:w-10/12 lg:w-4/12 md:grid grid-cols-2 lg:flex flex-col gap-4 items-start delay-anim-md">
-                                        {!!projectData?.team && (
-                                            <div className="flex flex-col gap-4 pt-blue lg:pt-0!">
-                                                <h3 className="h3 uppercase text-start">
-                                                    {dict.general.project.team}
-                                                </h3>
-                                                <p className="text-start uppercase whitespace-pre-wrap">
-                                                    {projectData.team}
-                                                </p>
-                                            </div>
-                                        )}
-
-                                        {(projectData?.services?.length ?? 0) >
-                                            0 && (
-                                            <div className="pt-blue flex flex-wrap gap-4">
-                                                {(
-                                                    projectData.services ?? []
-                                                ).map((service) => (
-                                                    <div
-                                                        key={service._id}
-                                                        className="uppercase bg-gray backdrop-blur-[20px] py-2 px-4 md:px-6 rounded-[5px]"
-                                                    >
-                                                        {service.title}
-                                                    </div>
-                                                ))}
-                                                {projectData.timeOfProject && (
-                                                    <div className="uppercase bg-gray backdrop-blur-[20px] py-2 px-4 md:px-6 rounded-[5px] whitespace-nowrap flex gap-4">
-                                                        <Image
-                                                            src="/assets/clock.svg"
-                                                            alt="Clock Icon"
-                                                            width={16}
-                                                            height={16}
-                                                            className="inline-block  w-[18px]"
-                                                        />
-                                                        {
-                                                            projectData.timeOfProject
-                                                        }
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
+                <>
+                    <section className={`pb-pink min-h-[50vh] relative flex flex-col pb-0!`}>
+                        <AnimateOnView className={`container p-lat delay-anim ${(projectData?.gallery?.length ?? 0) > 0 ? 'order-0 ' : 'order-1 pt-green'}`}>
+                            <VideoHLS videoUrl={projectData.videoUrl} />
+                        </AnimateOnView>
+                        <div className={`container p-lat  ${(projectData?.gallery?.length ?? 0) > 0 ? 'order-1 pt-green' : 'order-0 pt-red'}`}>
+                            <div className="row justify-center lg:justify-start gap-y-16 md:gap-y-20 lg:gap-y-24">
+                                {projectData?.title && (
+                                    <AnimateOnView className="w-full md:w-10/12 lg:w-6/12 flex flex-col gap-4">
+                                        <p className="detalle uppercase text-center lg:text-start">
+                                            {dict.general.project.project}
+                                        </p>
+                                        <h1 className="h1 text-center lg:text-start">
+                                            {projectData.title}
+                                        </h1>
                                     </AnimateOnView>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                    {(projectData?.gallery?.length ?? 0) > 0 && (
-                        <div className="container pt-green p-lat order-2">
-                            <div className="row gap-y-4">
-                                {projectData?.gallery?.map((item, index) => {
-                                    const layout = galleryLayouts[index];
-                                    const layoutClass =
-                                        galleryLayoutClassName(layout);
-
-                                    if (item.videoUrl) {
-                                        return (
-                                            <AnimateOnView
-                                                key={item._key}
-                                                className={layoutClass}
-                                            >
-                                                <VideoHLS
-                                                    videoUrl={item.videoUrl}
-                                                />
-                                            </AnimateOnView>
-                                        );
-                                    }
-
-                                    if (item.image) {
-                                        return (
-                                            <AnimateOnView
-                                                key={item._key}
-                                                className={`${layoutClass} h-full`}
-                                            >
-                                                <ImageComponent
-                                                    image={item.image}
-                                                    sizes={galleryImageSizes(
-                                                        layout,
-                                                    )}
-                                                    optionalAlt="Img Project"
-                                                    classContainer={`rounded-[10px] lg:rounded-[15px] overflow-hidden h-full block`}
-                                                    classImg={
-                                                        layout === "full"
-                                                            ? "object-cover object-center"
-                                                            : undefined
-                                                    }
-                                                />
-                                            </AnimateOnView>
-                                        );
-                                    }
-
-                                    return null;
-                                })}
+                                )}
+                                {(projectData?.info || projectData?.timeOfProject || (projectData?.tags?.length ?? 0) > 0) && (
+                                    <>
+                                        <div className="w-1/12 hidden lg:block"></div>
+                                        <AnimateOnView className="w-full md:w-10/12 lg:w-4/12 flex flex-col gap-y-16 md:gap-y-20 lg:gap-y-24">
+                                            {projectData?.info && (
+                                                <>
+                                                    <h3 className="uppercase h3 lg:text-start">{dict.general.project.info}</h3>
+                                                    <p className="uppercase lg:text-start pt-4 ">{projectData.info}</p>
+                                                </>
+                                            )}
+                                            {
+                                                (projectData?.timeOfProject || (projectData?.tags?.length ?? 0)) && (
+                                                    <div className="flex gap-4  flex-wrap">
+                                                        {(projectData?.tags?.length ?? 0 ) > 0 && (
+                                                            projectData?.tags?.map((tag) => (
+                                                                <div key={tag._id} className="backdrop-blur-[20px] bg-gray py-2 px-6 uppercase rounded-[5px] flex gap-4 items-center">
+                                                                    <p className="uppercase lg:text-start">{tag.title}</p>
+                                                                </div>
+                                                            ))
+                                                        
+                                                        )}
+                                                        {projectData?.timeOfProject && (
+                                                            <div className="backdrop-blur-[20px] bg-gray py-2 px-6 uppercase rounded-[5px] flex gap-4 items-center">
+                                                                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path d="M0 3.5625H1.8V5.3625H0V3.5625Z" fill="#FDF9F3"/>
+                                                                    <path d="M10.7999 1.78125H12.5999V3.58125H10.7999V1.78125Z" fill="#FDF9F3"/>
+                                                                    <path d="M12.6002 3.5625H14.4002V5.3625H12.6002V3.5625Z" fill="#FDF9F3"/>
+                                                                    <path d="M9 0H10.8V1.8H9V0Z" fill="#FDF9F3"/>
+                                                                    <path d="M7.20007 0H9V1.8H7.20007V0Z" fill="#FDF9F3"/>
+                                                                    <path d="M3.60022 0H5.40022V1.8H3.60022V0Z" fill="#FDF9F3"/>
+                                                                    <path d="M5.40022 0H7.20007V1.8H5.40022V0Z" fill="#FDF9F3"/>
+                                                                    <path d="M1.79993 1.78125H3.59993V3.58125H1.79993V1.78125Z" fill="#FDF9F3"/>
+                                                                    <path d="M12.6002 5.34375H14.4002V7.14375H12.6002V5.34375Z" fill="#FDF9F3"/>
+                                                                    <path d="M12.6002 7.125H14.4002V8.925H12.6002V7.125Z" fill="#FDF9F3"/>
+                                                                    <path d="M12.6002 8.90625H14.4002V10.7063H12.6002V8.90625Z" fill="#FDF9F3"/>
+                                                                    <path d="M0 5.34375H1.8V7.14375H0V5.34375Z" fill="#FDF9F3"/>
+                                                                    <path d="M0 7.125H1.8V8.925H0V7.125Z" fill="#FDF9F3"/>
+                                                                    <path d="M0 8.90625H1.8V10.7063H0V8.90625Z" fill="#FDF9F3"/>
+                                                                    <path d="M1.79993 10.6875H3.59993V12.4875H1.79993V10.6875Z" fill="#FDF9F3"/>
+                                                                    <path d="M3.60022 12.4688H5.40022V14.25H3.60022V12.4688Z" fill="#FDF9F3"/>
+                                                                    <path d="M5.40022 12.4688H7.20015V14.25H5.40022V12.4688Z" fill="#FDF9F3"/>
+                                                                    <path d="M7.20015 12.4688H9.00007V14.25H7.20015V12.4688Z" fill="#FDF9F3"/>
+                                                                    <path d="M9.00007 12.4688H10.8V14.25H9.00007V12.4688Z" fill="#FDF9F3"/>
+                                                                    <path d="M10.7999 10.6875H12.5999V12.4875H10.7999V10.6875Z" fill="#FDF9F3"/>
+                                                                    <path d="M7.20007 5.34375H9.00007V7.14375H7.20007V5.34375Z" fill="#FDF9F3"/>
+                                                                    <path d="M3.60022 7.125H5.40022V8.925H3.60022V7.125Z" fill="#FDF9F3"/>
+                                                                    <path d="M5.40022 7.125H7.20015V8.925H5.40022V7.125Z" fill="#FDF9F3"/>
+                                                                    <path d="M7.20007 3.5625H9.00007V5.3625H7.20007V3.5625Z" fill="#FDF9F3"/>
+                                                                </svg>
+                                                                <p className="uppercase lg:text-start">{projectData.timeOfProject}</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )
+                                            }
+                                        </AnimateOnView>
+                                    </>
+                                )}
                             </div>
                         </div>
-                    )}
-                </section>
+                    </section>
+                    <section className="pt-green mt-0!">
+                        <div className="container p-lat">
+                            <div className="row gap-y-4 md:gap-y-8">
+                                {
+                                    projectData?.gallery?.map((galleryItem) => (
+                                        <GalleryItem key={galleryItem._key} galleryItem={galleryItem} />
+                                    ))
+                                }
+                            </div>
+                        </div>
+                    
+                    </section>
+                    { projectData?.sections &&
+                        <Sections sections={projectData.sections} />
+                    }
+                </>
             )}
         </main>
     );

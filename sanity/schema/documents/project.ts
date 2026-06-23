@@ -2,14 +2,12 @@ import { defineField, defineType } from "sanity";
 import { isUniqueOtherThanLanguage } from "@/sanity/lib/isUnique";
 import {
     orderRankField,
-    orderRankOrdering,
 } from "@sanity/orderable-document-list";
 
-const sections: string[] = []; // Add section types here as strings e.g. 'heroSection', 'textSection'
-
-if (sections.length) {
-    const mappedSections = sections.map((section) => ({ type: section }));
-}
+const sections: string[] = [
+    "featuredProjects",
+];
+const mappedSections = sections?.map((section) => ({ type: section }));
 
 export default defineType({
     name: "project",
@@ -47,25 +45,30 @@ export default defineType({
             validation: (Rule) => Rule.required(),
         }),
         defineField({
-            name: "services",
+            name: "service",
+            type: "reference",
+            title: "Service",
+            to: [{ type: "service" }],
+            options: {
+                disableNew: true,
+                filter: "slug.current != 'photo'",
+            },
+            validation: (Rule) => Rule.required(),
+        }),
+        defineField({
+            name: "tags",
             type: "array",
-            title: "Services",
+            title: "Tags",
             of: [{
-                type: "object",
-                fields: [
-                    defineField({
-                        name: "service",
-                        type: "reference",
-                        to: [{ type: "service" }],
-                        options: {
-                            disableNew: true,
-                        },
-                    }),
-                ],
+                type: "reference",
+                to: [{ type: "tag" }],
+                options: {
+                    disableNew: true,
+                },
             }],
             validation: (Rule) =>
                 Rule.unique().error(
-                    "You cannot select the same service more than once.",
+                    "You cannot select the same tag more than once.",
                 ),
         }),
         defineField({
@@ -92,7 +95,7 @@ export default defineType({
         }),
         
         defineField({
-            name: "team",
+            name: "info",
             title: "Info",
             type: "text",
         }),
@@ -110,6 +113,24 @@ export default defineType({
                 layout: "grid",
             },
         }),
+        defineField({
+            name: "sections",
+            type: "array",
+            group: "content",
+            of: mappedSections,
+            options: {
+              insertMenu: {
+                views: [
+                  {
+                    name: 'grid',
+                    previewImageUrl: (section) => 
+                      `/cms/${section}.jpg`,
+                  },
+                  { name: 'list' },
+                ]
+              }
+            },
+          }),
         defineField({
             name: "metaTitle",
             title: "Meta Title",

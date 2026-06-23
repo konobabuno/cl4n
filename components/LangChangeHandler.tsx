@@ -36,13 +36,15 @@ export default function LangChangeHandler({
             } else if (type === "project"){
                 if (!targetSlug) return `/${otherLang}`;
                 return `/${otherLang}/${type}/${targetSlug}`;
+            } else if (type === "projects-new") {
+                return `/${otherLang}/${type}`;
             }
         } else {
             const type = segments[1];
             if (type === "home"){
                 return `/${otherLang}`;
             }
-            else if (type === "projects"){
+            else if (type === "projects-new"){
                 return `/${otherLang}/${type}`;
             } else {
                 return `/${otherLang}`;

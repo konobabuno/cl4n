@@ -42,6 +42,25 @@ export const HOME_HERO_QUERY = groq`
         }
     }
 `
+export const VIDEO_HERO_QUERY = groq`
+    _type == "videoHero" => {
+        _key,
+        _type,
+        video,
+        imageDesktop {
+          ${IMG}
+        },
+        imageMobile {
+          ${IMG}
+        },
+        headline,
+        title,
+        description,
+        ctaLink {
+          ${LINK}
+        }
+    }
+`
 
 export const GENERAL_HERO_QUERY = groq`
     _type == "generalHero" => {
@@ -265,6 +284,7 @@ export const SERVICES_DESCRIPTION_QUERY = groq`
           description,
           service -> {
             "language": $lang,
+            "slug": slug.current,
             "title": coalesce(
               title[language==$lang][0].value,
               title[language=="es"][0].value,

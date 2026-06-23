@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@utility -translate-center-3d {
+  transform: translate3d(-50%, -50%, 0px);
+}
+
 @theme {
   --color-black: #000000;
   --color-offwhite: #FDF9F3;
@@ -310,16 +314,16 @@ main section{
 }
 
 main section:first-child{
-  margin-top: 77px;
+  padding-top: 77px;
 }
 @media (min-width: 768px) {
   main section:first-child{
-      margin-top: 96px;
+      padding-top: 96px;
   }
 }
 @media (min-width: 993px) {
   main section:first-child{
-      margin-top: 110px;
+      padding-top: 110px;
   }
 }
 
@@ -995,4 +999,8 @@ button.disabled{
 
 .w-3_12_custom{
   width: calc(((100vw / 12) * 3) - 30px)
+}
+
+.transform-3d-neg{
+  transform: translate3d(-50%, -50%, 0px);
 }

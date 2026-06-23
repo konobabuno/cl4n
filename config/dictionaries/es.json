@@ -9,7 +9,7 @@
         "project": {
             "project": "Proyecto",
             "challenge": "El Reto",
-            "team": "Descripción"
+            "info": "Descripción"
         },
         "contact": {
             "name": "Nombre Completo *",
@@ -21,14 +21,17 @@
         },
         "projects": {
             "services": "Servicios",
+            "tags": "Etiquetas",
             "all": "Todos",
             "list": "Lista",
             "grid": "Grid",
             "order": "Ordenar por",
             "recent": "Más reciente",
             "oldest": "Más antiguo",
+            "alphabetical": "Alfabético",
             "filters": "Filtros",
-            "apply": "Aplicar Filtros"
+            "apply": "Aplicar Filtros",
+            "photography": "Fotografía"
         }
     }
 }

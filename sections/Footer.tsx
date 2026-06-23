@@ -58,7 +58,7 @@ export default function Footer({settings}: {settings: Settings}) {
                             {rights}
                         </div>
                     </div>
-                    <div className="w-full md:w-6/12 lg:w-5/12 grid grid-cols-6 lg:grid-cols-5 ml-auto pt-green md:pt-8! lg:pt-12!">
+                    <div className="w-full md:w-6/12 lg:w-5/12 grid grid-cols-6 lg:grid-cols-5 ml-auto pt-blue md:pt-8! lg:pt-12!">
                         <div className="col-span-3 lg:col-span-2 text-center md:text-start">
                             <h3 className="h3">
                                 sitemap

@@ -5,6 +5,28 @@ import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import type { Route } from "next";
 
+function normalizePath(path: string) {
+    return path.endsWith("/") && path.length > 1 ? path.slice(0, -1) : path;
+}
+
+function shouldScrollToTop(href: string, pathname: string) {
+    const normalizedHref = normalizePath(href);
+    const normalizedPath = normalizePath(pathname);
+
+    if (normalizedPath === normalizedHref) return true;
+
+    const projectsRootMatch = normalizedHref.match(/^\/(en|es)\/projects$/);
+    if (projectsRootMatch) {
+        const lang = projectsRootMatch[1];
+        return (
+            normalizedPath === `/${lang}/projects` ||
+            normalizedPath.startsWith(`/${lang}/projects/`)
+        );
+    }
+
+    return false;
+}
+
 export default function LinkComponent({
     href,
     page,
@@ -44,7 +66,15 @@ export default function LinkComponent({
             } else if (page._type === "projects") {
                 setLinkPath(`/${page.language}/projects`);
             } else if (page._type === "service") {
-                setLinkPath(`/${page.language}/projects/${page.slug}`);
+                if (page.slug === "long-format") {
+                    setLinkPath(`/${page.language}/projects/long-format`);
+                } else if (page.slug === "onsite") {
+                    setLinkPath(`/${page.language}/projects/onsite`);
+                } else if (page.slug === "fotografia" || page.slug === "photography") {
+                    setLinkPath(`/${page.language}/projects/photo`);
+                } else {
+                    setLinkPath(`/${page.language}/projects/${page.slug}`);
+                }
             } else {
                 setLinkPath("/");
             }
@@ -63,7 +93,7 @@ export default function LinkComponent({
             return;
         }
 
-        if (pathname === hrefString) {
+        if (shouldScrollToTop(hrefString, pathname)) {
             e.preventDefault();
             window.scrollTo({
                 top: 0,

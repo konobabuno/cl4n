@@ -1,12 +1,19 @@
 import { sanityFetch } from "@/sanity/lib/live";
-import { PROJECTS_THUMBNAILS_QUERY, SERVICES_LINKED_TO_PROJECTS_QUERY, ALL_PROJECTS_WITH_SERVICES_QUERY, NUMBER_OF_PROJECTS_WITH_SERVICE_FILTER_QUERY, NUMBER_OF_PROJECTS_QUERY} from "../queries/projects";
+import { PROJECT_THUMBNAIL_QUERY, SERVICES_LINKED_TO_PROJECTS_QUERY, TAGS_LINKED_TO_PROJECTS_QUERY, NUMBER_OF_PROJECTS_WITH_SERVICE_FILTER_QUERY, NUMBER_OF_PROJECTS_QUERY, TAGS_SLUG_QUERY} from "../queries/projects";
 import { locales } from "@/config/i18n/i18nConfig";
 
 
-export const fetchProjectsThumbnails = async (lang: LocalePage, start: number, end: number, order: string): Promise<ProjectPost[]> => {
+export const fetchProjectsThumbnails = async (
+    lang: LocalePage,
+    start: number,
+    end: number,
+    order: string,
+    service?: string,
+    tag?: string
+): Promise<ProjectPost[]> => {
     const { data } = await sanityFetch<string>({
-        query: PROJECTS_THUMBNAILS_QUERY(order),
-        params: { lang, start, end},
+        query: PROJECT_THUMBNAIL_QUERY(order),
+        params: { lang, start, end, service: service ?? "", tagSlug: tag ?? "" },
     });
     return data;
 }
@@ -20,28 +27,31 @@ export const fetchNumberOfProjects = async (lang: LocalePage): Promise<number> =
     return data;
 }
 
-export const fetchMoreProjects = async (lang: LocalePage, start: number, end: number, order: string): Promise<ProjectPost[]> => {
-    const { data } = await sanityFetch<string>({
-        query: PROJECTS_THUMBNAILS_QUERY(order),
-        params: { lang, start, end},
-    });
-    return data;
-}
-
-export const fetchSanityServicesLinkedToProjects = async (lang: LocalePage): Promise<string[]> => {
-    const { data } = await sanityFetch<string>({
+export const fetchSanityServices = async (lang: LocalePage): Promise<SanityService[]> => {
+    const { data } = await sanityFetch({
         query: SERVICES_LINKED_TO_PROJECTS_QUERY, 
         params: { lang },
     });
-    return data;
+    return data as SanityService[];
 };
 
-export const fetchSanityProjectsWithFilter = async (lang: LocalePage, start: number, end: number, order: string, service: string): Promise<ProjectPost[]> => {
-    const { data } = await sanityFetch<string>({
-        query: ALL_PROJECTS_WITH_SERVICES_QUERY(order), 
-        params: { lang, service, start, end, order },
+export const fetchSanityTags = async (lang: LocalePage, service?: string): Promise<SanityTag[]> => {
+    const { data } = await sanityFetch({
+        query: TAGS_LINKED_TO_PROJECTS_QUERY,
+        params: { lang, service: service ?? "" },
     });
-    return data;
+    return data as SanityTag[];
+};
+
+export const fetchSanityProjectsWithFilter = async (
+    lang: LocalePage,
+    start: number,
+    end: number,
+    order: string,
+    service: string,
+    tag?: string
+): Promise<ProjectPost[]> => {
+    return fetchProjectsThumbnails(lang, start, end, order, service, tag);
 }
 
 export const fetchSanityNumberOfProjectsWithFilter = async (lang: LocalePage, serviceFilter: string): Promise<number> => {
@@ -51,6 +61,7 @@ export const fetchSanityNumberOfProjectsWithFilter = async (lang: LocalePage, se
     });
     return data;
 }
+
 
 export const fetchSanityLangAndCategories = async (): Promise<{ lang: LocalePage; category: string }[]> => {
     const categoriesArrays = await Promise.all(
@@ -63,12 +74,34 @@ export const fetchSanityLangAndCategories = async (): Promise<{ lang: LocalePage
             });
 
             return data
-                .map((item: { title: string }) => ({
+                .map((item: SanityService) => ({
                     lang: locale,
-                    category: item,
+                    category: item.title,
                 }));
         })
     );
 
     return categoriesArrays.flat();
+};
+
+export const fetchSanityTagsSlugs = async (service: string): Promise<{ lang: LocalePage; tags: string }[]> => {
+    const slugsArrays = await Promise.all(
+        locales.map(async (locale) => {
+            const { data } = await sanityFetch({
+                query: TAGS_SLUG_QUERY,
+                params: { lang: locale, service },
+                perspective: "published",
+                stega: false,
+            });
+
+            return ((data as string[]) ?? [])
+                .filter(Boolean)
+                .map((slug) => ({
+                    lang: locale,
+                    tags: slug,
+                }));
+        })
+    );
+
+    return slugsArrays.flat();
 };

@@ -120,7 +120,7 @@ export default function SliderProjects({projects, color}: {projects?: ProjectPos
                                 classImg="object-cover object-center w-full !h-full"
                             />
                             {p.title && (
-                                <div className={`absolute left-0 right-0 top-8 md:top-12 transition-opacity delay-300   ${activeIndex == index ? 'opacity-100 duration-300' : 'opacity-0'}`}>
+                                <div className={`absolute left-0 right-0 top-8 md:top-12 transition-opacity delay-300  z-10  ${activeIndex == index ? 'opacity-100 duration-300' : 'opacity-0'}`}>
                                      <div className="grid grid-cols-12 md:grid-cols-9 lg:grid-cols-6  gap-x-4">
                                         <div className='col-span-8 md:col-span-5 lg:col-span-3 pl-8 md:pl-12'>
                                             {p.services?.[0].title && (
@@ -137,7 +137,7 @@ export default function SliderProjects({projects, color}: {projects?: ProjectPos
                                 </div>
                             )}
 
-                            <div className={`absolute right-8 bottom-8  md:right-12 md:bottom-12 bg-gray backdrop-blur-[20px] rounded-[10px] transition-opacity  duration-300  ${activeIndex == index ? 'opacity-100 delay-300' : 'opacity-0'}`}>
+                            <div className={`absolute right-8 bottom-8  md:right-12 md:bottom-12 bg-gray backdrop-blur-[20px] rounded-[10px] transition-opacity  duration-300 z-10  ${activeIndex == index ? 'opacity-100 delay-300' : 'opacity-0'}`}>
                                 <LinkComponent 
                                 className='flex gap-4 items-center rounded-[5px] lg:rounded-[10px] py-[8px] px-6 lg:px-8 lg:py-4 uppercase btn-hover'
                                 linkType="page"
@@ -147,6 +147,7 @@ export default function SliderProjects({projects, color}: {projects?: ProjectPos
                                     Ver Proyecto
                                 </LinkComponent>
                             </div>
+                            <div className="absolute inset-0 pointer-events-none rounded-[15px] bg-linear-to-b from-black/30 to-transparent" />
                         </div>
                     </SwiperSlide>
                 ))}

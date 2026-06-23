@@ -1,5 +1,4 @@
 import { defineField, defineType } from "sanity";
-import { orderRankField } from "@sanity/orderable-document-list";
 
 type InternationalizedString = {
     _key: string;
@@ -15,13 +14,14 @@ const getSpanishTitle = (title?: InternationalizedString[]) => {
 };
 
 export default defineType({
-    name: "service",
+    name: "tag",
     type: "document",
-    title: "Service",
+    title: "Tag",
     fields: [
         defineField({
             name: "title",
             type: "internationalizedArrayString",
+            validation: (Rule) => Rule.required(),
         }),
         defineField({
             name: "slug",
@@ -32,7 +32,6 @@ export default defineType({
             },
             validation: (Rule) => Rule.required(),
         }),
-        orderRankField({ type: "service" })
     ],
     preview: {
             select: {
