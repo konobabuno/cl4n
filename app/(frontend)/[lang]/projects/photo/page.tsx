@@ -5,6 +5,8 @@ export default async function PhotoPage() {
     const { photos } = await fetchPhotoPage(0, 9);
     
     return (
-       <RenderPhotos photos={photos} />
+        <>
+            <RenderPhotos photos={photos} />
+        </>
     );
 }

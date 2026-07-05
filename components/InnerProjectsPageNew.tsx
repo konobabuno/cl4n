@@ -35,8 +35,8 @@ export default function InnerProjectsPage({
                     setGridOrListAction={setGridOrList}
                     gridOrList={gridOrList}
                 />
-                <div className="row justify-center pt-blue min-h-[calc(100vh-300px)]">
-                    <div className="w-full lg:w-10/12">
+                <div className="row justify-center pt-blue min-h-[calc(100vh-300px)] relative">
+                    <div className="w-full lg:w-9/12">
                         {children}
                     </div>
                 </div>

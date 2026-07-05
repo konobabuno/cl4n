@@ -1,156 +1,430 @@
 'use client'
 
 import ImageComponent from "./ImageComponent";
-import { Swiper, SwiperSlide } from 'swiper/react';
-import type { Swiper as SwiperCore } from 'swiper/types';
-import { Pagination, Autoplay, Navigation } from 'swiper/modules';
-import { useEffect, useRef, useState } from 'react';
-import 'swiper/css';
-import 'swiper/css/pagination';
-import VideoHLS from "./VideoHLS";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
+import gsap from "gsap";
+import CustomEase from "gsap/CustomEase";
+import { Flip } from "gsap/Flip";
 
-export default function GalleryItem({ galleryItem }: { galleryItem: GalleryItem }) {
-    let className = "";
-    switch (galleryItem.orientation) {
-        case "vertical":
-            className = "w-full md:w-6/12 lg:w-4/12";
-            break;
-        case "horizontal":
-            className = "w-full md:w-6/12 lg:w-8/12";
-            break;
-        case "bigImage":
-            className = "w-full";
-            break;
-    }
+gsap.registerPlugin(CustomEase, Flip);
 
-    const [isInView, setIsInView] = useState(false);
-    const swiperRef = useRef<HTMLDivElement>(null);
-    const swiperInstance = useRef<SwiperCore | null>(null);
-    const nextRef = useRef<HTMLDivElement>(null);
-    const prevRef = useRef<HTMLDivElement>(null);
-    const [activeIndex, setActiveIndex] = useState(0);
-    const [imgIsLoaded, setImgIsLoaded] = useState(false);
+
+export default function GalleryItem({ images }: { images: Image[] }) {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [isDesktop, setIsDesktop] = useState(false);
+    const [isTablet, setIsTablet] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+
+    const [isOpen, setIsOpen] = useState(false);
+    const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
+
+    CustomEase.create("customEase", "0.19, 1, 0.22, 1");
 
     useEffect(() => {
-        if (!swiperRef.current) return;
+        if (typeof window === "undefined") return;
 
-        const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        setIsInView(true);
-                        if (swiperInstance.current?.autoplay) {
-                            swiperInstance.current.autoplay.start();
-                        }
-                    } else {
-                        setIsInView(false);
-                        if (swiperInstance.current?.autoplay) {
-                            swiperInstance.current.autoplay.stop();
-                        }
-                    }
-                });
-            },
-            { threshold: 0, rootMargin: '0px 0px 50px 0px ' }
-        );
+        const mqDesktop = window.matchMedia("(min-width: 993px)");
+        const mqTablet = window.matchMedia("(min-width: 768px) and (max-width: 992px)");
+        const mqMobile = window.matchMedia("(max-width: 767px)");
+        const updateDesktop = () => setIsDesktop(mqDesktop.matches);
+        const updateTablet = () => setIsTablet(mqTablet.matches);
+        const updateMobile = () => setIsMobile(mqMobile.matches);
 
-        observer.observe(swiperRef.current);
+        updateDesktop();
+        updateTablet();
+        updateMobile();
+        mqDesktop.addEventListener("change", updateDesktop);
+        mqTablet.addEventListener("change", updateTablet);
+        mqMobile.addEventListener("change", updateMobile);
 
         return () => {
-            if (swiperRef.current) {
-                observer.unobserve(swiperRef.current);
-            }
-        };
+            mqDesktop.removeEventListener("change", updateDesktop);
+            mqTablet.removeEventListener("change", updateTablet);
+            mqMobile.removeEventListener("change", updateMobile);
+        }
     }, []);
 
-    useEffect(() => {
-        if (isInView) {
-            setImgIsLoaded(true);
+    const focusContainerRef = useRef<HTMLDivElement>(null);
+    const copyOriginRef = useRef<{ copyEl: HTMLElement; originParent: HTMLElement } | null>(null);
+    const flipTweenRef = useRef<gsap.core.Timeline | null>(null);
+    const fadeTweenRef = useRef<gsap.core.Tween | null>(null);
+    const resizeCleanupRef = useRef<(() => void) | null>(null);
+    const animateOpenFlipRef = useRef(false);
+
+    const clearCopyZIndexes = () => {
+        containerRef.current?.querySelectorAll<HTMLElement>(".copy").forEach((copyEl) => {
+            copyEl.style.zIndex = "";
+        });
+        focusContainerRef.current?.querySelectorAll<HTMLElement>(".copy").forEach((copyEl) => {
+            copyEl.style.zIndex = "";
+        });
+    };
+
+    const clearFlipInlineStyles = (copyEl: HTMLElement) => {
+        [
+            "transform",
+            "translate",
+            "rotate",
+            "scale",
+            "position",
+            "top",
+            "right",
+            "bottom",
+            "left",
+            "max-width",
+            "max-height",
+            "min-width",
+            "min-height",
+            "padding",
+            "transition",
+        ].forEach((property) => copyEl.style.removeProperty(property));
+    };
+
+    const clearGridCopyInlineStyles = (copyEl: HTMLElement) => {
+        clearFlipInlineStyles(copyEl);
+        copyEl.style.width = "";
+        copyEl.style.height = "";
+        copyEl.style.opacity = "";
+        copyEl.style.zIndex = "";
+    };
+
+    useEffect(() => () => {
+        clearCopyZIndexes();
+        flipTweenRef.current?.kill();
+        fadeTweenRef.current?.kill();
+    }, []);
+
+    useLayoutEffect(() => {
+        const container = focusContainerRef.current;
+        if (!container) return;
+
+        resizeCleanupRef.current?.();
+        resizeCleanupRef.current = null;
+        clearCopyZIndexes();
+        flipTweenRef.current?.kill();
+        flipTweenRef.current = null;
+        fadeTweenRef.current?.kill();
+        fadeTweenRef.current = null;
+
+        const returnCopyToGrid = (copyEl: HTMLElement, originParent: HTMLElement) => {
+            clearGridCopyInlineStyles(copyEl);
+            originParent.appendChild(copyEl);
+        };
+
+        if (!isOpen) {
+            if (copyOriginRef.current) {
+                const { copyEl, originParent } = copyOriginRef.current;
+                copyOriginRef.current = null;
+
+                const rect = originParent.getBoundingClientRect();
+                const isVisible =
+                    rect.bottom > 0 &&
+                    rect.top < window.innerHeight &&
+                    rect.right > 0 &&
+                    rect.left < window.innerWidth;
+
+                if (isVisible) {
+                    const state = Flip.getState(copyEl);
+                    returnCopyToGrid(copyEl, originParent);
+                    copyEl.style.zIndex = "1001";
+                    flipTweenRef.current = Flip.from(state, {
+                        duration: 0.6,
+                        ease: "customEase",
+                        absolute: true,
+                        onComplete: () => {
+                            clearGridCopyInlineStyles(copyEl);
+                        },
+                        onInterrupt: () => {
+                            copyEl.style.zIndex = "";
+                        },
+                    });
+                } else {
+                    returnCopyToGrid(copyEl, originParent);
+                }
+            }
+            return;
         }
-    }, [isInView]);
-    const items = galleryItem.items ?? [];
+
+        if (selectedPhotoIndex === null) return;
+
+        const selectedPhotoEl = containerRef.current?.querySelector<HTMLDivElement>(
+            `[data-photo-item][data-real-index="${selectedPhotoIndex}"]`
+        );
+        if (!selectedPhotoEl) return;
+
+        const copyEl = selectedPhotoEl.querySelector(".copy") as HTMLElement | null;
+        if (!copyEl) return;
+
+        if (copyOriginRef.current && copyOriginRef.current.copyEl !== copyEl) {
+            const prev = copyOriginRef.current;
+            returnCopyToGrid(prev.copyEl, prev.originParent);
+        }
+
+        const shouldFlip = animateOpenFlipRef.current;
+        animateOpenFlipRef.current = false;
+
+        copyOriginRef.current = { copyEl, originParent: selectedPhotoEl };
+
+        const fitToContainer = () => {
+            const img = copyEl.querySelector("img");
+            const iw = img?.naturalWidth || Number(img?.getAttribute("width")) || 1;
+            const ih = img?.naturalHeight || Number(img?.getAttribute("height")) || 1;
+            const cw = container.clientWidth;
+            const ch = container.clientHeight;
+            if (!cw || !ch) return;
+            const scale = Math.min(cw / iw, ch / ih);
+            copyEl.style.width = `${iw * scale}px`;
+            copyEl.style.height = `${ih * scale}px`;
+        };
+
+        const state = shouldFlip ? Flip.getState(copyEl) : null;
+        clearFlipInlineStyles(copyEl);
+        container.appendChild(copyEl);
+        fitToContainer();
+
+        if (state) {
+            flipTweenRef.current = Flip.from(state, {
+                duration: 0.6,
+                ease: "customEase",
+                absolute: true,
+                onComplete: () => clearFlipInlineStyles(copyEl),
+            });
+        } else {
+            fadeTweenRef.current = gsap.fromTo(
+                copyEl,
+                { opacity: 0 },
+                { opacity: 1, duration: 0.5, ease: "customEase" }
+            );
+        }
+
+        let resizeTimeout: number | undefined;
+        const handleResize = () => {
+            if (resizeTimeout) window.clearTimeout(resizeTimeout);
+            resizeTimeout = window.setTimeout(fitToContainer, 120);
+        };
+
+        window.addEventListener("resize", handleResize);
+        resizeCleanupRef.current = () => {
+            window.removeEventListener("resize", handleResize);
+            if (resizeTimeout) window.clearTimeout(resizeTimeout);
+        };
+    }, [isOpen, selectedPhotoIndex]);
+
+    const handlePhotoClick = (index: number) => {
+        animateOpenFlipRef.current = true;
+        setIsOpen(true);
+        setSelectedPhotoIndex(index);
+    }
+
+    const goToPhoto = (direction: -1 | 1) => {
+        animateOpenFlipRef.current = false;
+        setSelectedPhotoIndex((currentIndex) => {
+            if (!images.length) return null;
+            const current = currentIndex ?? 0;
+            const nextIndex = current + direction;
+            return Math.max(0, Math.min(nextIndex, images.length - 1));
+        });
+    }
+
+    const hasPreviousPhoto = selectedPhotoIndex !== null && selectedPhotoIndex > 0;
+    const hasNextPhoto = selectedPhotoIndex !== null && selectedPhotoIndex < images.length - 1;
 
     return (
-        <div className={className}>
-            {
-                items.length === 1 && items[0].image && (
-                    <div className="relative rounded-[15px] overflow-hidden">
-                        <ImageComponent image={items[0].image} sizes="(max-width: 768px) 100vw, 75vw" optionalAlt="Image Gallery" classContainer="rounded-[15px] overflow-hidden" />
+        <>
+            <div className="row" ref={containerRef}>
+                <div className="md:w-6/12 lg:w-4/12 flex flex-col gap-4">
+                    {
+                        images.map((image, index) => {
+                            if (isDesktop) {
+                                if (index % 3 === 0) {
+                                    return (
+                                        <div key={image._key} data-photo-item className="relative" data-real-index={index} onClick={() => handlePhotoClick(index)}>
+                                            <ImageComponent
+                                                image={image}
+                                                optionalAlt="Photo"
+                                                sizes="(max-width: 768px) 100vw, 80vw"
+                                                classContainer="rounded-[10px] lg:rounded-[15px] overflow-hidden"
+                                                loading={index < 6 ? "eager" : "lazy"}
+                                            />
+                                            <ImageComponent
+                                                image={image}
+                                                optionalAlt="Photo"
+                                                sizes="(max-width: 768px) 100vw, 80vw"
+                                                classContainer={`rounded-[10px] lg:rounded-[15px] overflow-hidden absolute! top-1/2 left-1/2 transform-3d-neg copy`}
+                                                loading={index < 6 ? "eager" : "lazy"}
+                                            />
+                                        </div>
+                                    )
+                                }
+                            } else if (isTablet) {
+                                if (index % 2 === 0) {
+                                    return (
+                                        <div key={image._key} data-photo-item className="relative" data-real-index={index} onClick={() => handlePhotoClick(index)}>
+                                            <ImageComponent
+                                                image={image}
+                                                optionalAlt="Photo"
+                                                sizes="(max-width: 768px) 100vw, 80vw"
+                                                classContainer="rounded-[10px] lg:rounded-[15px] overflow-hidden"
+                                                loading={index < 6 ? "eager" : "lazy"}
+                                            />
+                                            <ImageComponent
+                                                image={image}
+                                                optionalAlt="Photo"
+                                                sizes="(max-width: 768px) 100vw, 80vw"
+                                                classContainer={`rounded-[10px] lg:rounded-[15px] overflow-hidden absolute! top-1/2 left-1/2 transform-3d-neg copy`}
+                                                loading={index < 6 ? "eager" : "lazy"}
+                                            />
+                                        </div>
+                                    )
+                                }
+                            } else if (isMobile) {
+                                return (
+                                    <div key={image._key} data-photo-item className="relative" data-real-index={index} onClick={() => handlePhotoClick(index)}>
+                                        <ImageComponent
+                                            image={image}
+                                            optionalAlt="Photo"
+                                            sizes="(max-width: 768px) 100vw, 80vw"
+                                            classContainer="rounded-[10px] lg:rounded-[15px] overflow-hidden"
+                                            loading={index < 6 ? "eager" : "lazy"}
+                                        />
+                                        <ImageComponent
+                                            image={image}
+                                            optionalAlt="Photo"
+                                            sizes="(max-width: 768px) 100vw, 80vw"
+                                            classContainer={`rounded-[10px] lg:rounded-[15px] overflow-hidden absolute! top-1/2 left-1/2 transform-3d-neg copy`}
+                                            loading={index < 6 ? "eager" : "lazy"}
+                                        />
+                                    </div>
+                                );
+                            }
+
+                            return null;
+                        })
+                    }
+                </div>
+                <div className="md:w-6/12 lg:w-4/12 hidden md:flex flex-col gap-4" >
+                    {
+                        images.map((image, index) => {
+                            if (isDesktop) {
+                                if (index % 3 === 1) {
+                                    return (
+                                        <div key={image._key} data-photo-item className="relative" data-real-index={index} onClick={() => handlePhotoClick(index)}>
+                                            <ImageComponent
+                                                image={image}
+                                                optionalAlt="Photo"
+                                                sizes="(max-width: 768px) 100vw, 80vw"
+                                                classContainer="rounded-[10px] lg:rounded-[15px] overflow-hidden"
+                                                loading={index < 6 ? "eager" : "lazy"}
+                                            />
+                                            <ImageComponent
+                                                image={image}
+                                                optionalAlt="Photo"
+                                                sizes="(max-width: 768px) 100vw, 80vw"
+                                                classContainer={`rounded-[10px] lg:rounded-[15px] overflow-hidden absolute! top-1/2 left-1/2 transform-3d-neg copy`}
+                                                loading={index < 6 ? "eager" : "lazy"}
+                                            />
+                                        </div>
+                                    )
+                                }
+                            } else if (isTablet) {
+                                if (index % 2 === 1) {
+                                    return (
+                                        <div key={image._key} data-photo-item className="relative" data-real-index={index} onClick={() => handlePhotoClick(index)}>
+                                            <ImageComponent
+                                                image={image}
+                                                optionalAlt="Photo"
+                                                sizes="(max-width: 768px) 100vw, 80vw"
+                                                classContainer="rounded-[10px] lg:rounded-[15px] overflow-hidden"
+                                                loading={index < 6 ? "eager" : "lazy"}
+                                            />
+                                            <ImageComponent
+                                                image={image}
+                                                optionalAlt="Photo"
+                                                sizes="(max-width: 768px) 100vw, 80vw"
+                                                classContainer={`rounded-[10px] lg:rounded-[15px] overflow-hidden absolute! top-1/2 left-1/2 transform-3d-neg copy`}
+                                                loading={index < 6 ? "eager" : "lazy"}
+                                            />
+                                        </div>
+                                    )
+                                }
+                            }
+
+                            return null;
+                        })
+                    }
+                </div>
+                <div className="lg:w-4/12 hidden lg:flex flex-col gap-4">
+                    {
+                        images.map((image, index) => {
+                            if (isDesktop) {
+                                if (index % 3 === 2) {
+                                    return (
+                                        <div key={image._key} data-photo-item className="relative" data-real-index={index} onClick={() => handlePhotoClick(index)}>
+                                            <ImageComponent
+                                                image={image}
+                                                optionalAlt="Photo"
+                                                sizes="(max-width: 768px) 100vw, 80vw"
+                                                classContainer="rounded-[10px] lg:rounded-[15px] overflow-hidden"
+                                                loading={index < 6 ? "eager" : "lazy"}
+                                            />
+                                            <ImageComponent
+                                                image={image}
+                                                optionalAlt="Photo"
+                                                sizes="(max-width: 768px) 100vw, 80vw"
+                                                classContainer={`rounded-[10px] lg:rounded-[15px] overflow-hidden absolute! top-1/2 left-1/2 transform-3d-neg copy`}
+                                                loading={index < 6 ? "eager" : "lazy"}
+                                            />
+                                        </div>
+                                    );
+                                }
+                            }
+
+                            return null;
+                        })
+                    }
+                </div>
+            </div>
+
+            <div className={`fixed top-0 left-0 w-full h-full z-1000 p-8 md:p-20 lg:p-24 pt-red pb-pink flex flex-col items-center ${isOpen ? 'pointer-events-auto' : 'pointer-events-none'}`} >
+                <div className={`absolute top-0 left-0 w-full h-full bg-black/80 transition-opacity duration-400 backdrop-blur-[10px] ${isOpen ? 'opacity-100' : 'opacity-0'}`} onClick={() => setIsOpen(false)}></div>
+                <div className={`flex gap-4 uppercase  duration-400 z-1000 ${isOpen ? 'opacity-100' : 'opacity-0'}`} >
+                    <div className="cursor-pointer" onClick={() => setIsOpen(false)}>Grid</div>
+                    <span>/</span>
+                    <div className={`flex gap-4 items-center transition-opacity cursor-default`}>
+                        <span className="dot bg-offwhite flex-none"></span>
+                        Full
                     </div>
-                )
-            }
-            {
-                items.length === 1 && items[0].video && (
-                    <div className="relative rounded-[15px] overflow-hidden">
-                        <VideoHLS videoUrl={items[0].video.url}  />
-                    </div>
-                )
-            }
-            {
-                items.length > 1 && (
-                    <div className="relative rounded-[15px] overflow-hidden" ref={swiperRef}>
-                        <Swiper
-                            className="w-full"
-                            slidesPerView={1}
-                            spaceBetween={10}
-                            loop={true}
-                            speed={700}
-                            autoplay={{
-                                delay: 2200,
-                                disableOnInteraction: true,
-                            }}
-                            navigation={{
-                                nextEl: nextRef.current!,
-                                prevEl: prevRef.current!,
-                            }}
-                            modules={[Pagination, Autoplay, Navigation]}
-                            style={{
-                                ['--swiper-wrapper-transition-timing-function' as string]: 'cubic-bezier(0.22, 1, 0.36, 1)',
-                            }}
-                            onSwiper={(swiper) => {
-                                swiperInstance.current = swiper;
-                                swiper.autoplay.stop();
-                            }}
-                            onSlideChange={(swiper) => {
-                                setActiveIndex(swiper.realIndex);
-                            }}
-                        >
-                            {items.map((item, index) => (
-                                <SwiperSlide key={item._key} className="h-auto!">
-                                    {item.image && index === 0 && (
-                                        <ImageComponent image={item.image} sizes="(max-width: 768px) 100vw, 75vw" optionalAlt="Image Gallery" classContainer="rounded-[15px] overflow-hidden h-full" classImg="h-full! object-cover" />
-                                    )}
-                                    {(item.image && index > 0 && (isInView || imgIsLoaded)) && (
-                                        <ImageComponent image={item.image} sizes="(max-width: 768px) 100vw, 75vw" optionalAlt="Image Gallery" classContainer="rounded-[15px] overflow-hidden h-full" classImg="h-full! object-cover" />
-                                    )}
-                                    {item.video  && (
-                                        <VideoHLS videoUrl={item.video.url} classContainer="h-full! w-full!" classVideo="h-full! w-full! object-cover"/>
-                                    )}
-                                </SwiperSlide>
-                            ))}
-                        </Swiper>
-                        <div className="absolute left-0 bottom-12 flex gap-8 items-center justify-center w-full z-10 mix-blend-difference pointer-events-none">
-                            <div ref={prevRef} className="cursor-pointer pointer-events-auto">
-                                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M5.99982 13.9995H4.00002V11.9997H5.99982V13.9995ZM8.00007 15.9998H6.00027L5.99982 13.9995H8.00052L8.00007 15.9998ZM10.0003 18H8.00007V15.9998L10.0003 16.0002V18ZM5.99982 4.0005V6.0003H4.00002V4.00005L5.99982 4.0005ZM8.00007 1.9998V4.0005H5.99982L6.00027 1.9998H8.00007ZM10.0003 0V1.9998H8.00007V0H10.0003Z" fill="#FDF9F3" />
-                                    <path d="M4.0005 9.99901L4.00002 11.9997L2.00025 11.9993V9.99946H0V7.99921H1.9998V5.99941H4.0005V7.99921H18.0005V9.99946L4.0005 9.99901Z" fill="#FDF9F3" />
-                                </svg>
-                            </div>
-                            <div>
-                                {activeIndex + 1} / {items.length}
-                            </div>
-                            <div ref={nextRef} className="cursor-pointer pointer-events-auto">
-                                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12.0006 4.0005H14.0004V6.0003H12.0006V4.0005ZM10.0004 2.00025H12.0002L12.0006 4.0005H9.99993L10.0004 2.00025ZM8.00013 0H10.0004V2.00025L8.00013 1.9998V0ZM12.0006 13.9995V11.9997H14.0004V14L12.0006 13.9995ZM10.0004 16.0002V13.9995H12.0006L12.0002 16.0002H10.0004ZM8.00013 18V16.0002H10.0004V18H8.00013Z" fill="#FDF9F3" />
-                                    <path d="M14 8.00099L14.0004 6.0003L16.0002 6.00074V8.00054H18.0005V10.0008H16.0007V12.0006H14V10.0008H0V8.00054L14 8.00099Z" fill="#FDF9F3" />
-                                </svg>
-                            </div>
+                </div>
+                <div className="pt-blue flex-1 w-full p-lat">
+                    <div className="row h-full justify-center">
+                        <div className="w-full md:w-10/12 lg:w-8/12">
+                            <div className="w-full h-full relative pointer-events-none" ref={focusContainerRef}></div>
                         </div>
                     </div>
-                )
-            }
-            
-
-
-        </div>
+                </div>
+                <div className={`pt-red flex gap-4 md:gap-6 items-center justify-center transition-opacity duration-400 relative z-1000 ${isOpen ? 'opacity-100' : 'opacity-0'}`} onClick={(e) => e.stopPropagation()}>
+                    <button
+                        className={`w-12 h-12 md:w-[42px] md:h-[42px] flex items-center justify-center bg-offwhite rounded-[5px] ${hasPreviousPhoto ? "cursor-pointer" : "opacity-40"}`}
+                        disabled={!hasPreviousPhoto}
+                        onClick={() => goToPhoto(-1)}
+                    >
+                        <svg className='w-[13px] h-[13px] md:w-[18px] md:h-[18px]' width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5.99982 13.9995H4.00002V11.9997H5.99982V13.9995ZM8.00007 15.9998H6.00027L5.99982 13.9995H8.00052L8.00007 15.9998ZM10.0003 18H8.00007V15.9998L10.0003 16.0002V18ZM5.99982 4.0005V6.0003H4.00002V4.00005L5.99982 4.0005ZM8.00007 1.9998V4.0005H5.99982L6.00027 1.9998H8.00007ZM10.0003 0V1.9998H8.00007V0H10.0003Z" fill={"#B70100"}/>
+                            <path d="M4.0005 9.99901L4.00002 11.9997L2.00025 11.9993V9.99946H0V7.99921H1.9998V5.99941H4.0005V7.99921H18.0005V9.99946L4.0005 9.99901Z" fill={"#B70100"}/>
+                        </svg>
+                    </button>
+                    <button
+                        className={`w-12 h-12 md:w-[42px] md:h-[42px] flex items-center justify-center bg-offwhite rounded-[5px] ${hasNextPhoto ? "cursor-pointer" : "opacity-40"}`}
+                        disabled={!hasNextPhoto}
+                        onClick={() => goToPhoto(1)}
+                    >
+                        <svg className='w-[13px] h-[13px] md:w-[18px] md:h-[18px]' width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12.8629 14.0564H14.8627V12.0566H12.8629V14.0564ZM10.8627 16.0566H12.8625L12.8629 14.0564H10.8622L10.8627 16.0566ZM8.86244 18.0569H10.8627V16.0566L8.86244 16.0571V18.0569ZM12.8629 4.05738V6.05718H14.8627V4.05693L12.8629 4.05738ZM10.8627 2.05668V4.05738H12.8629L12.8625 2.05668H10.8627ZM8.86244 0.0568848V2.05668H10.8627V0.0568848H8.86244Z" fill={"#B70100"}/>
+                            <path d="M14.8623 10.0559L14.8627 12.0566L16.8625 12.0561V10.0563H18.8628V8.0561H16.863V6.0563H14.8623V8.0561H0.862305V10.0563L14.8623 10.0559Z" fill={"#B70100"}/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </>
     )
 }

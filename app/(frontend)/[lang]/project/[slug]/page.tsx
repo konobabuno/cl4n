@@ -47,6 +47,7 @@ export default async function Project({
         notFound();
     }
     const dict = await getDictionary(lang);
+    console.log(projectData);
     return (
         <main>
             <PageTransitionLoader />
@@ -131,13 +132,11 @@ export default async function Project({
                     </section>
                     <section className="pt-green mt-0!">
                         <div className="container p-lat">
-                            <div className="row gap-y-4 md:gap-y-8">
-                                {
-                                    projectData?.gallery?.map((galleryItem) => (
-                                        <GalleryItem key={galleryItem._key} galleryItem={galleryItem} />
-                                    ))
-                                }
-                            </div>
+                            {
+                                projectData?.gallery?.length && projectData.gallery.length > 0 && (
+                                    <GalleryItem images={projectData.gallery} />
+                                )
+                            }
                         </div>
                     
                     </section>

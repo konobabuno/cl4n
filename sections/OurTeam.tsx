@@ -200,7 +200,7 @@ export default function OurTeam(section: ourTeam) {
                                 <div className="w-4/12  hidden lg:block">
                                     <div className="row justify-center">
                                         <div className="w-9/12 ">
-                                            <div className=" w-full rounded-[15px] aspect-[1.6] relative opacity-0 overflow-hidden" ref={containerImgs}>
+                                            <div className=" w-full rounded-[15px] aspect-[1.4] relative opacity-0 overflow-hidden" ref={containerImgs}>
                                                 <div className="absolute left-0 top-0">
                                                     <div className="flex flex-col " ref={innerImages}>
                                                         {section.members &&

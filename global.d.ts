@@ -19,7 +19,7 @@ interface Asset {
 
 type Image = {
     _key: string;
-    alt: string;
+    alt?: string;
     asset: Asset;
     hotspot?: { x: number; y: number; height: number; width: number };
 };
@@ -88,25 +88,10 @@ type Project = {
     tags?: { _id: string; slug: string; title: string }[];
     services?: { _id: string; title: string, slug: string };
     sections?: Section[];
-    gallery?: {
-        _key: string;
-        orientation: "vertical" | "horizontal";
-        items: GalleryItem[];
-    }[];
+    gallery?: Image[];
     sections?: Section[];
 };
 
-type GalleryItem = {
-    _key: string;
-    orientation: "vertical" | "horizontal" | "bigImage";
-    items: {
-        _key: string;
-        image?: Image;
-        video?: {
-            url: string;
-        };
-    }[] | null;
-}
 
 type Color = {
     label: string;
