@@ -4,7 +4,7 @@ import { IMG } from './lib';
 export type ProjectOrder = 'asc' | 'desc' | 'alphabetical';
 
 const projectOrderClause = (order: ProjectOrder | string) => {
-  if (order === 'alphabetical') return 'title asc';
+  if (order === 'alphabetical') return 'lower(title) asc';
   if (order === 'desc') return 'orderRank desc';
   return 'orderRank asc';
 };

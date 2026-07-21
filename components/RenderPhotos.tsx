@@ -5,7 +5,7 @@ import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import gsap from "gsap";
 import CustomEase from "gsap/CustomEase";
 import { Flip } from "gsap/Flip";
-
+import { PageProjectsLoader } from "./PageProjectsLoader";
 gsap.registerPlugin(CustomEase, Flip);
 
 
@@ -303,6 +303,7 @@ export default function RenderPhotos({ photos }: { photos: Image[] }) {
     return (
         <>
             <div className="container p-lat pt-blue relative min-h-[75vh]" ref={containerRef}>
+                <PageProjectsLoader/>
                 <div className="row">
                     <div className="md:w-6/12 lg:w-4/12 flex flex-col gap-4">
                         {
@@ -459,7 +460,7 @@ export default function RenderPhotos({ photos }: { photos: Image[] }) {
             </div>
 
             <div className={`fixed top-0 left-0 w-full h-full z-1000 p-8 md:p-20 lg:p-24 pt-red pb-pink flex flex-col items-center ${isOpen ? 'pointer-events-auto' : 'pointer-events-none'}`} >
-                <div className={`absolute top-0 left-0 w-full h-full bg-black/80 transition-opacity duration-400 ${isOpen ? 'opacity-100' : 'opacity-0'}`} onClick={() => setIsOpen(false)}></div>
+                <div className={`absolute top-0 left-0 w-full h-full bg-black/80 backdrop-blur-[10px] transition-opacity duration-400 ${isOpen ? 'opacity-100' : 'opacity-0'}`} onClick={() => setIsOpen(false)}></div>
                 <div className={`flex gap-4 uppercase  duration-400 z-1000 ${isOpen ? 'opacity-100' : 'opacity-0'}`} >
                     <div className="cursor-pointer" onClick={() => setIsOpen(false)}>Grid</div>
                     <span>/</span>
@@ -470,7 +471,7 @@ export default function RenderPhotos({ photos }: { photos: Image[] }) {
                 </div>
                 <div className="pt-blue flex-1 w-full p-lat">
                     <div className="row h-full justify-center">
-                        <div className="w-full md:w-10/12 lg:w-6/12">
+                        <div className="w-full md:w-10/12 lg:w-8/12">
                             <div className="w-full h-full relative pointer-events-none" ref={focusContainerRef}></div>
                         </div>
                     </div>

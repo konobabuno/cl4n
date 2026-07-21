@@ -200,7 +200,7 @@ export default function OurTeam(section: ourTeam) {
                                 <div className="w-4/12  hidden lg:block">
                                     <div className="row justify-center">
                                         <div className="w-9/12 ">
-                                            <div className=" w-full rounded-[15px] aspect-[1.6] relative opacity-0 overflow-hidden" ref={containerImgs}>
+                                            <div className=" w-full rounded-[15px] aspect-[1.4] relative opacity-0 overflow-hidden" ref={containerImgs}>
                                                 <div className="absolute left-0 top-0">
                                                     <div className="flex flex-col " ref={innerImages}>
                                                         {section.members &&
@@ -224,7 +224,7 @@ export default function OurTeam(section: ourTeam) {
                                                                                     }
                                                                                     sizes="(max-width: 768px) 100vw, (max-width: 993px) 75vw, 50vw"
                                                                                     optionalAlt="Img Project"
-                                                                                    classContainer="rounded-[15px] overflow-hidden w-full !aspect-[1.6] object-cover object-center "
+                                                                                    classContainer="rounded-[15px] overflow-hidden w-full !aspect-[1.4] object-cover object-center "
                                                                                     classImg="w-full h-full object-cover object-center"
                                                                                 />
                                                                             </div>

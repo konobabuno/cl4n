@@ -9,6 +9,7 @@ import { Draggable } from "gsap/Draggable";
 import { CustomEase } from "gsap/CustomEase";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
+import type { Route } from "next";
 
 export default function FilterbarNew({ tags, serviceSlug, setOrderAction, order, gridOrList, setGridOrListAction }:
     { tags: SanityTag[], serviceSlug: { current: string }, setOrderAction: (value: "asc" | "desc" | "alphabetical") => void, order: "asc" | "desc" | "alphabetical", gridOrList: "grid" | "list", setGridOrListAction: (value: "grid" | "list") => void }) {
@@ -16,6 +17,24 @@ export default function FilterbarNew({ tags, serviceSlug, setOrderAction, order,
     gsap.registerPlugin(Draggable, CustomEase);
     const { dict, lang } = useI18n();
     const router = useRouter();
+
+    const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+    const [isTransitioning, setIsTransitioning] = useState(false);
+
+    async function tagTransition(href: string) {
+        setIsTransitioning(true);
+        const body = document.body;
+        body.classList.add("loading");
+
+        const projectItems = document.querySelectorAll<HTMLElement>("[data-project-item]");
+        if (projectItems.length > 0) {
+            gsap.killTweensOf(projectItems);
+            gsap.to(projectItems, { opacity: 0, duration: 0.3, ease: "power2.out" });
+        }
+
+        await sleep(300);
+        router.push(href as Route);
+    }
 
     // TAGS AND ORDER OPEN
     const tagsMenuRef = useRef<HTMLDivElement>(null);
@@ -98,6 +117,7 @@ export default function FilterbarNew({ tags, serviceSlug, setOrderAction, order,
         } else {
             setServiceClicked(null);
         }
+        setIsTransitioning(false);
     }, [currentPath]);
 
     const [bottomsheetDraft, setBottomsheetDraft] = useState<{
@@ -114,9 +134,9 @@ export default function FilterbarNew({ tags, serviceSlug, setOrderAction, order,
         }, 100);
         setOrderAction(bottomsheetDraft.order);
         if (bottomsheetDraft.tag != null) {
-          router.push(`/${lang}/projects/${serviceSlug.current}/${bottomsheetDraft.tag}`);
+          tagTransition(`/${lang}/projects/${serviceSlug.current}/${bottomsheetDraft.tag}`);
         } else {
-          router.push(`/${lang}/projects/${serviceSlug.current}`);
+          tagTransition(`/${lang}/projects/${serviceSlug.current}`);
         }
       };
 
@@ -137,12 +157,22 @@ export default function FilterbarNew({ tags, serviceSlug, setOrderAction, order,
                                     </svg>
                                 </div>
                                 <div className={`absolute flex-col gap-2 flex top-[calc(100%+20px)] bg-gray backdrop-blur-[20px] px-8 py-6 rounded-[10px] w-80 z-400 transition-opacity uppercase ${openTagsMenu ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-                                    <Link href={`/${lang}/projects/${serviceSlug.current}`} className="flex gap-4 items-center" onClick={() => { setServiceClicked(null) }}>
+                                    <Link href={`/${lang}/projects/${serviceSlug.current}`} className={`flex gap-4 items-center ${isTransitioning ? 'pointer-events-none' : ''}`} onClick={(e) => {
+                                        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+                                        e.preventDefault();
+                                        setServiceClicked(null);
+                                        tagTransition(`/${lang}/projects/${serviceSlug.current}`);
+                                    }}>
                                         <div className={`bg-offwhite w-[8px] h-[8px] rounded-full ${serviceClicked == null ? 'block' : 'hidden'}`}></div>
                                         {dict.general.projects.all}
                                     </Link>
                                     {tags && tags.map((tag) => (
-                                        <Link key={tag.title + 'desktopTag'} href={`/${lang}/projects/${serviceSlug.current}/${tag.slug.current}`} className="flex gap-4 items-center" onClick={() => { setServiceClicked(tag.slug.current) }}>
+                                        <Link key={tag.title + 'desktopTag'} href={`/${lang}/projects/${serviceSlug.current}/${tag.slug.current}`} className={`flex gap-4 items-center ${isTransitioning ? 'pointer-events-none' : ''}`} onClick={(e) => {
+                                            if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+                                            e.preventDefault();
+                                            setServiceClicked(tag.slug.current);
+                                            tagTransition(`/${lang}/projects/${serviceSlug.current}/${tag.slug.current}`);
+                                        }}>
                                             <div className={`bg-offwhite w-[8px] h-[8px] rounded-full ${serviceClicked == tag.slug.current ? 'block' : 'hidden'}`}></div>
                                             {tag.title}
                                         </Link>
@@ -255,7 +285,7 @@ export default function FilterbarNew({ tags, serviceSlug, setOrderAction, order,
                         </div>
                     </div>
                     <div className="pt-pink flex justify-center pb-3">
-                        <div className="btn" onClick={submitBottomsheetDraft}>
+                        <div className={`btn ${isTransitioning ? 'pointer-events-none' : ''}`} onClick={submitBottomsheetDraft}>
                             <p className="uppercase">
                                 {dict.general.projects.apply}
                             </p>

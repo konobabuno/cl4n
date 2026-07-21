@@ -2,7 +2,7 @@ import InnerProjectsPageNew from "@/components/InnerProjectsPageNew";
 import { fetchSanityTags } from "@/sanity/services/fetchProjects";
 import { generatePageMetadata } from "@/lib/generateMetadata";
 import type { Metadata } from "next";
-
+import { PageProjectsLoader } from "@/components/PageProjectsLoader";
 export async function generateMetadata({params} : {params: Promise<{ lang: LocalePage }>}): Promise<Metadata> {
     const {lang} = await params;
     return generatePageMetadata({
@@ -21,10 +21,9 @@ export default async function LongFormatLayout({ children, params }: { children:
     const { lang } = await params;
     const tags = await fetchSanityTags(lang as LocalePage, "long-format");
     return (
-        <div className="container p-lat">
-            <InnerProjectsPageNew tags={tags} serviceSlug="long-format">
-                {children}
-            </InnerProjectsPageNew>
-        </div>
+        <InnerProjectsPageNew tags={tags} serviceSlug="long-format">
+            <PageProjectsLoader/>
+            {children}
+        </InnerProjectsPageNew>
     )
 }

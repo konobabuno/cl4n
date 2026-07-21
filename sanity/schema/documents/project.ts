@@ -108,10 +108,7 @@ export default defineType({
             name: "gallery",
             type: "array",
             title: "Gallery",
-            of: [{ type: "galleryItem" }],
-            options: {
-                layout: "grid",
-            },
+            of: [{ type: "image" }],
         }),
         defineField({
             name: "sections",

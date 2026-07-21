@@ -76,21 +76,7 @@ export const PROJECT = groq`
     },
     gallery[]{
       _key,
-      orientation,
-      items[]{
-        _type,
-        _key,
-        _type == "image" => {
-          "image": {
-            ${IMG}
-          }
-        },
-        _type == "video" => {
-          "video": {
-            url
-          }
-        }
-      }
+      ${IMG}
     },
     sections[] {
       ${FEATURED_PROJECTS_QUERY},
