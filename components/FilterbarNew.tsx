@@ -150,7 +150,7 @@ export default function FilterbarNew({ tags, serviceSlug, setOrderAction, order,
                             {/* TAGS FILTER */}
                             <div className="relative hidden lg:block" ref={tagsMenuRef}>
                                 <div className="flex gap-2 items-center cursor-pointer select-none" onClick={() => { setOpenTagsMenu(!openTagsMenu) }}>
-                                    <p className="uppercase">{dict.general.projects.services}</p>
+                                    <p className="uppercase">{dict.general.projects.tags}</p>
                                     <svg className={`${openTagsMenu ? 'rotate-180' : ''}`} width="18" height="10" viewBox="0 0 18 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M4.0005 4.00007L4.0005 5.99987H6.0003V4.00007H4.0005ZM2.00025 1.99982L2.00025 3.99962L4.0005 4.00007V1.99937L2.00025 1.99982ZM8.74338e-08 -0.000427246L0 1.99982L2.00025 1.99982L1.9998 -0.000427159L8.74338e-08 -0.000427246ZM13.9995 4.00007L11.9997 4.00007V5.99987L13.9999 5.99987L13.9995 4.00007ZM16.0002 1.99982H13.9995V4.00007L16.0002 3.99962V1.99982ZM18 -0.000426459L16.0002 -0.000426547V1.99982L18 1.99982V-0.000426459Z" fill="#FDF9F3" />
                                         <path d="M6.0003 5.99987L8.00098 5.99939L8.00053 7.99964L10.0008 8.00009V5.99939H12.0006V8.00009H10.0008V9.99989H8.00053V7.99964H6.00073L6.0003 5.99987Z" fill="#FDF9F3" />
