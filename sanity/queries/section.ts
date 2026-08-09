@@ -149,6 +149,7 @@ export const SERVICES_CTA = groq`
           label,
           service -> {
             "language": $lang,
+            "slug": slug.current,
             "title": coalesce(
               title[language==$lang][0].value,
               title[language=="es"][0].value,
