@@ -14,7 +14,7 @@ type ServicesCTA = {
         headline?: string;
         description?: string;
         image: Image;
-        links?: Array<Link | {_type: "reference"; label: string; _key: string;  service: { title: string; language?: string } }>;
+        links?: Array<Link | {_type: "reference"; label: string; _key: string;  service: { title: string; slug: string; language?: string } }>;
     }[] | null;
 }
 
@@ -151,7 +151,11 @@ export default function ServicesCTA(section: ServicesCTA) {
                                                                     <LinkComponent 
                                                                     linkType="page"
                                                                     page={
-                                                                        {_type: 'service', slug: 'service' in link ? link.service.title : '', language: ('service' in link ? link.service?.language : undefined) || ''}
+                                                                        {
+                                                                            _type: 'service', 
+                                                                            slug: 'service' in link ? link.service.slug : '', 
+                                                                            language: ('service' in link ? link.service?.language : undefined) || ''
+                                                                        }
                                                                     }
                                                                     >
                                                                         <div className={`btn ${i === 1 ? 'transparent' : '' } ` } >
@@ -225,7 +229,7 @@ export default function ServicesCTA(section: ServicesCTA) {
                                                                             <LinkComponent 
                                                                             linkType="page"
                                                                             page={
-                                                                                {_type: 'service', slug: 'service' in link ? link.service.title : '', language: ('service' in link ? link.service?.language : undefined) || ''}
+                                                                                {_type: 'service', slug: 'service' in link ? link.service.slug : '', language: ('service' in link ? link.service?.language : undefined) || ''}
                                                                             }
                                                                             >
                                                                                 <div className={`btn ${i === 1 ? 'transparent' : '' } ` } >
