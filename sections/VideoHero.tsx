@@ -67,7 +67,7 @@ export default function VideoHero(section: VideoHero) {
 
     return (
         <section className="home-hero" ref={rootRef}>
-            <div className="container p-lat">
+            <div className="container p-lat pt-[78px] md:pt-[97px] lg:pt-44">
                 <div className="relative w-full">
                     <AnimateOnView className="w-full flex aspect-[1.77]">
                         {videoUrl && (
