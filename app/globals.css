@@ -313,6 +313,11 @@ main section{
   }
 }
 
+#featured-projects + #our-clients,
+#our-clients + #featured-projects {
+  margin-top: 0 !important;
+}
+
 main section:first-child{
   padding-top: 77px;
 }
@@ -1008,3 +1013,4 @@ button.disabled{
 .hola{
   background-color: red;
 }
+

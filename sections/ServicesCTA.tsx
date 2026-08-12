@@ -84,7 +84,7 @@ export default function ServicesCTA(section: ServicesCTA) {
 
   return (
       <section ref={sectionRef}>
-          <AnimateOnView className="container p-lat" >
+          <AnimateOnView className="container p-lat pb-pink" >
               {section.services && section.services.length > 0 ? (
                   <div className="relative rounded-[15px] overflow-hidden h-240 md:h-320 lg:h-260 animate">
                         <div className="absolute left-8 top-8 right-8 md:left-12 md:top-12 md:right-12 flex flex-wrap gap-4 z-10 ">
@@ -253,6 +253,7 @@ export default function ServicesCTA(section: ServicesCTA) {
                   <p>No services available.</p>
               )}
           </AnimateOnView>
+         
       </section>
   );
 }
