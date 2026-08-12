@@ -13,7 +13,6 @@ export default function GalleryItem({ images }: { images: Image[] }) {
     const containerRef = useRef<HTMLDivElement>(null);
     const [isDesktop, setIsDesktop] = useState(false);
     const [isTablet, setIsTablet] = useState(false);
-    const [isMobile, setIsMobile] = useState(false);
 
     const [isOpen, setIsOpen] = useState(false);
     const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
@@ -24,23 +23,18 @@ export default function GalleryItem({ images }: { images: Image[] }) {
         if (typeof window === "undefined") return;
 
         const mqDesktop = window.matchMedia("(min-width: 993px)");
-        const mqTablet = window.matchMedia("(min-width: 768px) and (max-width: 992px)");
-        const mqMobile = window.matchMedia("(max-width: 767px)");
+        const mqTablet = window.matchMedia("(max-width: 992px)");
         const updateDesktop = () => setIsDesktop(mqDesktop.matches);
         const updateTablet = () => setIsTablet(mqTablet.matches);
-        const updateMobile = () => setIsMobile(mqMobile.matches);
 
         updateDesktop();
         updateTablet();
-        updateMobile();
         mqDesktop.addEventListener("change", updateDesktop);
         mqTablet.addEventListener("change", updateTablet);
-        mqMobile.addEventListener("change", updateMobile);
 
         return () => {
             mqDesktop.removeEventListener("change", updateDesktop);
             mqTablet.removeEventListener("change", updateTablet);
-            mqMobile.removeEventListener("change", updateMobile);
         }
     }, []);
 
@@ -232,7 +226,7 @@ export default function GalleryItem({ images }: { images: Image[] }) {
     return (
         <>
             <div className="row" ref={containerRef}>
-                <div className="md:w-6/12 lg:w-4/12 flex flex-col gap-4">
+                <div className="w-6/12 lg:w-4/12 flex flex-col gap-4">
                     {
                         images.map((image, index) => {
                             if (isDesktop) {
@@ -277,32 +271,13 @@ export default function GalleryItem({ images }: { images: Image[] }) {
                                         </div>
                                     )
                                 }
-                            } else if (isMobile) {
-                                return (
-                                    <div key={image._key} data-photo-item className="relative" data-real-index={index} onClick={() => handlePhotoClick(index)}>
-                                        <ImageComponent
-                                            image={image}
-                                            optionalAlt="Photo"
-                                            sizes="(max-width: 768px) 100vw, 80vw"
-                                            classContainer="rounded-[10px] lg:rounded-[15px] overflow-hidden"
-                                            loading={index < 6 ? "eager" : "lazy"}
-                                        />
-                                        <ImageComponent
-                                            image={image}
-                                            optionalAlt="Photo"
-                                            sizes="(max-width: 768px) 100vw, 80vw"
-                                            classContainer={`rounded-[10px] lg:rounded-[15px] overflow-hidden absolute! top-1/2 left-1/2 transform-3d-neg copy`}
-                                            loading={index < 6 ? "eager" : "lazy"}
-                                        />
-                                    </div>
-                                );
                             }
 
                             return null;
                         })
                     }
                 </div>
-                <div className="md:w-6/12 lg:w-4/12 hidden md:flex flex-col gap-4" >
+                <div className="w-6/12 lg:w-4/12 flex flex-col gap-4" >
                     {
                         images.map((image, index) => {
                             if (isDesktop) {

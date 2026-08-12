@@ -102,8 +102,9 @@ export const TEXT_AND_IMAGE = groq`
     headline,
     title,
     description,
-    image {
-      ${IMG}
+    images[] {
+        alt,
+        ${IMG}
     },
     ctaButton {
       ${LINK}

@@ -15,7 +15,6 @@ export default function RenderPhotos({ photos }: { photos: Image[] }) {
     const containerRef = useRef<HTMLDivElement>(null);
     const [isDesktop, setIsDesktop] = useState(false);
     const [isTablet, setIsTablet] = useState(false);
-    const [isMobile, setIsMobile] = useState(false);
     const sentinelRef = useRef<HTMLDivElement>(null);
     const limit = 9;
     const [start, setStart] = useState<number>(photos.length);
@@ -33,23 +32,18 @@ export default function RenderPhotos({ photos }: { photos: Image[] }) {
         if (typeof window === "undefined") return;
 
         const mqDesktop = window.matchMedia("(min-width: 993px)");
-        const mqTablet = window.matchMedia("(min-width: 768px) and (max-width: 992px)");
-        const mqMobile = window.matchMedia("(max-width: 767px)");
+        const mqTablet = window.matchMedia("(max-width: 992px)");
         const updateDesktop = () => setIsDesktop(mqDesktop.matches);
         const updateTablet = () => setIsTablet(mqTablet.matches);
-        const updateMobile = () => setIsMobile(mqMobile.matches);
 
         updateDesktop();
         updateTablet();
-        updateMobile();
         mqDesktop.addEventListener("change", updateDesktop);
         mqTablet.addEventListener("change", updateTablet);
-        mqMobile.addEventListener("change", updateMobile);
 
         return () => {
             mqDesktop.removeEventListener("change", updateDesktop);
             mqTablet.removeEventListener("change", updateTablet);
-            mqMobile.removeEventListener("change", updateMobile);
         }
     }, []);
 
@@ -133,7 +127,7 @@ export default function RenderPhotos({ photos }: { photos: Image[] }) {
     useLayoutEffect(() => {
         const container = containerRef.current;
         if (!container) return;
-        if (!isDesktop && !isTablet && !isMobile) return;
+        if (!isDesktop && !isTablet) return;
 
         const ctx = gsapCtxRef.current ?? gsap.context(() => { }, container);
 
@@ -162,7 +156,7 @@ export default function RenderPhotos({ photos }: { photos: Image[] }) {
                 });
             });
         });
-    }, [allPhotos, isDesktop, isTablet, isMobile]);
+        }, [allPhotos, isDesktop, isTablet]);
 
     useLayoutEffect(() => {
         const container = focusContainerRef.current;
@@ -305,7 +299,7 @@ export default function RenderPhotos({ photos }: { photos: Image[] }) {
             <div className="container p-lat pt-blue relative min-h-[75vh]" ref={containerRef}>
                 <PageProjectsLoader/>
                 <div className="row">
-                    <div className="md:w-6/12 lg:w-4/12 flex flex-col gap-4">
+                    <div className="w-6/12 lg:w-4/12 flex flex-col gap-4">
                         {
                             allPhotos.map((photo, index) => {
                                 if (isDesktop) {
@@ -352,32 +346,13 @@ export default function RenderPhotos({ photos }: { photos: Image[] }) {
                                             </div>
                                         );
                                     }
-                                } else if (isMobile) {
-                                    return (
-                                        <div key={photo._key} data-photo-item className="opacity-0 relative" data-real-index={index} onClick={() => handlePhotoClick(index)}>
-                                            <ImageComponent
-                                                image={photo}
-                                                optionalAlt="Photo"
-                                                sizes="(max-width: 768px) 100vw, 80vw"
-                                                classContainer="rounded-[10px] lg:rounded-[15px] overflow-hidden"
-                                                loading={index < 6 ? "eager" : "lazy"}
-                                            />
-                                            <ImageComponent
-                                                image={photo}
-                                                optionalAlt="Photo"
-                                                sizes="(max-width: 768px) 100vw, 80vw"
-                                                classContainer={`rounded-[10px] lg:rounded-[15px] overflow-hidden absolute! top-1/2 left-1/2 transform-3d-neg copy`}
-                                                loading={index < 6 ? "eager" : "lazy"}
-                                            />
-                                        </div>
-                                    );
                                 }
 
                                 return null;
                             })
                         }
                     </div>
-                    <div className="md:w-6/12 lg:w-4/12 hidden md:flex flex-col gap-4" >
+                    <div className="w-6/12 lg:w-4/12 flex flex-col gap-4" >
                         {
                             allPhotos.map((photo, index) => {
                                 if (isDesktop) {

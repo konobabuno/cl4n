@@ -1,27 +1,56 @@
+'use client';
+
 import ImageComponent from '@/components/ImageComponent';
 import TitleText from "@/components/TitleText";
 import LinkComponent from "@/components/LinkComponent";
 import AnimateOnView from "@/components/AnimateOnView";
 import { PortableTextBlock } from "@portabletext/types";
+import { useEffect, useState } from "react";
 
+const SESSION_KEY = "textAndImageIndex";
 
-type TextAndImage= {
+type TextAndImage = {
     imagePosition?: 'left' | 'right';
     headline?: string;
     title?: PortableTextBlock;
     description?: string;
-    image?: Image;
+    images?: Image[];
     ctaButton?: Link;
 };
 
-
-export default function  TextAndImage(section: TextAndImage) {
+export default function TextAndImage(section: TextAndImage) {
+    const [activeImage, setActiveImage] = useState<Image | undefined>(
+        section.images?.[0]
+    );
 
     let left = false;
-
     if (section.imagePosition) {
         left = section.imagePosition.includes('left');
     }
+
+    useEffect(() => {
+        const images = section.images ?? [];
+
+        if (images.length === 0) {
+            setActiveImage(undefined);
+            return;
+        }
+
+        if (images.length === 1) {
+            setActiveImage(images[0]);
+            return;
+        }
+
+        let index = Number(sessionStorage.getItem(SESSION_KEY) ?? 0);
+        if (!Number.isFinite(index) || index < 0 || index >= images.length) {
+            index = 0;
+        }
+
+        setActiveImage(images[index]);
+
+        const nextIndex = index + 1 >= images.length ? 0 : index + 1;
+        sessionStorage.setItem(SESSION_KEY, String(nextIndex));
+    }, [section.images]);
 
     return (
         <section>
@@ -57,12 +86,12 @@ export default function  TextAndImage(section: TextAndImage) {
                     <div className={`w-1/12 lg:hidden`}></div>
                     <div className={`w-1/12 lg:hidden`}></div>
                     {
-                        section.image && (
+                        activeImage && (
                             <AnimateOnView  className={`w-full md:w-10/12 lg:w-6/12 ${left ? 'flex-row-reverse ' : ' mx-auto  lg:mr-0 lg:ml-auto delay-lg'}  pt-blue lg:pt-0!`}>
                                 <ImageComponent
-                                    image={section.image}
+                                    image={activeImage}
                                     sizes="(max-width: 768px) 100vw, (max-width: 768px) 90vw, 75vw"
-                                    optionalAlt="Img Project"
+                                    optionalAlt={activeImage.alt || "Img Project"}
                                     classContainer="rounded-[10px] lg:rounded-[15px]  overflow-hidden"
                                 />
                             </AnimateOnView>

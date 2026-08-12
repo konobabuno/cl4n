@@ -19,22 +19,27 @@ export default defineType({
             },
         }),
         defineField({
-            name: "image",
-            type: "image",
-            title: "Image",
-            options: {
-                hotspot: true,
-            },
-            fields: [
-              defineField({
-                  name: "alt",
-                  type: "string",
-                  title: "Alternative Text",
-                  description: "Important for SEO and accessibility.",
-              }),
+            name:'images',
+            type: 'array',
+            title: 'Images',
+            of: [
+                {
+                    type: 'image',
+                    options: {
+                        hotspot: true,
+                    },
+                    fields: [
+                        defineField({
+                            name: "alt",
+                            type: "string",
+                            title: "Alternative Text",
+                            description: "Important for SEO and accessibility.",
+                        }),
+                    ],
+                    validation: (Rule) =>
+                        Rule.required().error("Image is required"),
+                },
             ],
-            validation: (Rule) =>
-                Rule.required().error("Image is required"),
         }),
         defineField({
             name: 'headline',

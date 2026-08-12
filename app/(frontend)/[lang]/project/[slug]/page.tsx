@@ -47,7 +47,6 @@ export default async function Project({
         notFound();
     }
     const dict = await getDictionary(lang);
-    console.log(projectData);
     return (
         <main>
             <PageTransitionLoader />
