@@ -47,18 +47,10 @@ export const VIDEO_HERO_QUERY = groq`
         _key,
         _type,
         video,
-        imageDesktop {
+        coverImage {
           ${IMG}
         },
-        imageMobile {
-          ${IMG}
-        },
-        headline,
-        title,
         description,
-        ctaLink {
-          ${LINK}
-        }
     }
 `
 

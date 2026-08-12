@@ -24,7 +24,7 @@ export default function  FeaturedProjects(section: FeaturedProjects) {
 
 
     return (
-        <section>
+        <section id="featured-projects">
             <div className="container p-lat overflow-hidden" style={{ backgroundColor: newColorString}}> 
                 <div className="row justify-center items-center pt-green pb-green">
                     <AnimateOnView className="w-full lg:w-10/12 flex flex-col items-center">
