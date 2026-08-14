@@ -14,11 +14,11 @@ export default function RenderPhotos({ photos }: { photos: Image[] }) {
     const [allPhotos, setAllPhotos] = useState<Image[]>(photos);
     const containerRef = useRef<HTMLDivElement>(null);
     const [isDesktop, setIsDesktop] = useState(false);
-    const [isTablet, setIsTablet] = useState(false);
+    const [isTablet, setIsTablet] = useState(true);
     const sentinelRef = useRef<HTMLDivElement>(null);
     const limit = 9;
     const [start, setStart] = useState<number>(photos.length);
-    const [isFetching, setIsFetching] = useState(false);
+    const isFetchingRef = useRef(false);
     const reachedEndRef = useRef<boolean>(false);
     const isFirstRenderRef = useRef(true);
     const gsapCtxRef = useRef<gsap.Context | null>(null);
@@ -86,9 +86,9 @@ export default function RenderPhotos({ photos }: { photos: Image[] }) {
         const observer = new IntersectionObserver(async (entries) => {
             const entry = entries[0];
             if (!entry?.isIntersecting) return;
-            if (isFetching || reachedEndRef.current) return;
+            if (isFetchingRef.current || reachedEndRef.current) return;
 
-            setIsFetching(true);
+            isFetchingRef.current = true;
             const params = new URLSearchParams({
                 start: String(start),
                 limit: String(limit),
@@ -108,21 +108,21 @@ export default function RenderPhotos({ photos }: { photos: Image[] }) {
                     reachedEndRef.current = true;
                 }
             } finally {
-                setIsFetching(false);
+                isFetchingRef.current = false;
             }
 
         }, {
             root: null,
-            rootMargin: "200px 0px",
-            threshold: 1,
+            rootMargin: "600px 0px",
+            threshold: 0,
         });
 
         observer.observe(sentinel);
 
         return () => {
-            observer.unobserve(sentinel);
+            observer.disconnect();
         };
-    }, [start]);
+    }, [start, isDesktop, isTablet]);
 
     useLayoutEffect(() => {
         const container = containerRef.current;
@@ -296,7 +296,7 @@ export default function RenderPhotos({ photos }: { photos: Image[] }) {
 
     return (
         <>
-            <div className="container p-lat pt-blue relative min-h-[75vh]" ref={containerRef}>
+            <div className="container p-lat pt-blue relative min-h-[75vh] pb-pink" ref={containerRef}>
                 <PageProjectsLoader/>
                 <div className="row">
                     <div className="w-6/12 lg:w-4/12 flex flex-col gap-4">
@@ -431,7 +431,7 @@ export default function RenderPhotos({ photos }: { photos: Image[] }) {
                         }
                     </div>
                 </div>
-                <div ref={sentinelRef} className="h-10 absolute bottom-0 left-0 w-full"></div>
+                <div ref={sentinelRef} aria-hidden className="h-16 w-full" />
             </div>
 
             <div className={`fixed top-0 left-0 w-full h-full z-1000 p-8 md:p-20 lg:p-24 pt-red pb-pink flex flex-col items-center ${isOpen ? 'pointer-events-auto' : 'pointer-events-none'}`} >
