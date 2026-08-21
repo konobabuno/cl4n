@@ -7,8 +7,7 @@ export async function generateMetadata({params} : {params: Promise<{ lang: Local
     const {lang} = await params;
     return generatePageMetadata({
       metadata: {
-        metaTitle: "CL4N Projects - Long Format",
-        metaDescription: "Projects from our Long Format service",
+        metaTitle: `${lang === "es" ? "Proyectos" : "Projects"} / Long Format | CL4N`,
         language: lang,
         noIndex: true,
       },

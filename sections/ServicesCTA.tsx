@@ -53,7 +53,7 @@ export default function ServicesCTA(section: ServicesCTA) {
                         const nextIndex = (currentIndex + 1) % section.services.length;
                         return section.services[nextIndex]._key;
                     });
-                }, 2000); 
+                }, 3000); 
             }
         } else {
             if (intervalRef.current) {

@@ -13,15 +13,15 @@ export async function generateStaticParams() {
 export async function generateMetadata({params} : {params: Promise<{ lang: LocalePage, slug: string }> }): Promise<Metadata> {
     const {lang, slug} = await params;
     const pageData = await fetchPage(slug, lang);
-    if (pageData.metadata){
+    if (pageData?.metadata){
         return generatePageMetadata({
             metadata: pageData.metadata,
             slug: slug,
-            title: pageData.title
+            title: pageData?.title
         });
     }
     return {
-        title: pageData.title || 'Title Undefined',
+        title: pageData?.title || 'Title Undefined',
     };
 }
 
@@ -38,7 +38,7 @@ export default async function Page({
     return(
         <main>
             <PageTransitionLoader />
-            { pageData.sections &&
+            { pageData?.sections &&
                 <Sections sections={pageData.sections} />
             }
 

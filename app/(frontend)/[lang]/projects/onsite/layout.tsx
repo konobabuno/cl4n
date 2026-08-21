@@ -8,7 +8,7 @@ export async function generateMetadata({params} : {params: Promise<{ lang: Local
     const {lang} = await params;
     return generatePageMetadata({
       metadata: {
-        metaTitle: "CL4N Projects - Onsite",
+        metaTitle: `${lang === "es" ? "Proyectos" : "Projects"} / Onsite | CL4N`,
         metaDescription: "Projects from our Onsite service",
         language: lang,
         noIndex: true,

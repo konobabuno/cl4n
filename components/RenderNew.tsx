@@ -233,7 +233,7 @@ export default function RenderNew({ lang, projectThumbnails, tag, service }: { l
                         if (!isDesktop) {
                             e.preventDefault();
                             e.stopPropagation();
-                            setActiveId(p._id);
+                           
                         }
                     }}
                 >
