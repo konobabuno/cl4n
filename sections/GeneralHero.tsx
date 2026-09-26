@@ -83,7 +83,7 @@ export default function  GeneralHero(section: GeneralHero) {
                         section.heroDescription && (
                             <div className="absolute bottom-8 md:bottom-12 left-0 w-full">
                                 <div className="row justify-end">
-                                    <AnimateOnView  className="w-10/12 md:w-8/12 lg:w-5/12 ml-auto lg:mr-12">
+                                    <AnimateOnView  className="w-10/12 md:w-8/12 lg:w-5/12 xl:w-4/12 ml-auto lg:mr-12">
                                         <p className='uppercase pr-8 md:pr-12 lg:pr-0 animate delay-sm'>
                                             {section.heroDescription}
                                         </p>

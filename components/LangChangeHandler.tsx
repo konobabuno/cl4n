@@ -4,6 +4,73 @@ import { locales } from "@/config/i18n/i18nConfig";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
+function getPathSegments(pathname: string) {
+    return pathname.split("/").filter(Boolean);
+}
+
+function findTranslation(
+    translations: Translation[] | undefined,
+    slug: string,
+    type?: string,
+) {
+    if (!slug || !translations?.length) return undefined;
+
+    return translations.find((translation) => {
+        if (type && translation.type !== type) return false;
+        return translation.en?.slug === slug || translation.es?.slug === slug;
+    });
+}
+
+function getTranslatedSlug(
+    translations: Translation[] | undefined,
+    slug: string,
+    otherLang: LocalePage,
+    type?: string,
+) {
+    return findTranslation(translations, slug, type)?.[otherLang]?.slug;
+}
+
+function getLocalizedHref(
+    pathname: string,
+    otherLang: LocalePage,
+    translations: Translation[],
+) {
+    const segments = getPathSegments(pathname);
+    if (segments.length <= 1) return `/${otherLang}`;
+
+    const routeType = segments[1];
+
+    if (routeType === "project") {
+        const projectSlug = segments[2];
+        const targetSlug = getTranslatedSlug(
+            translations,
+            projectSlug,
+            otherLang,
+            "project",
+        );
+        if (!targetSlug) return `/${otherLang}`;
+        return `/${otherLang}/project/${targetSlug}`;
+    }
+
+    if (routeType === "projects") {
+        return `/${otherLang}/${segments.slice(1).join("/")}`;
+    }
+
+    if (routeType === "home") {
+        return `/${otherLang}`;
+    }
+
+    const pageSlug = segments.slice(1).join("/");
+    const targetSlug = getTranslatedSlug(
+        translations,
+        pageSlug,
+        otherLang,
+        "page",
+    );
+    if (!targetSlug) return `/${otherLang}`;
+    return `/${otherLang}/${targetSlug}`;
+}
+
 export default function LangChangeHandler({
     lang,
     translations,
@@ -12,45 +79,11 @@ export default function LangChangeHandler({
     translations: Translation[];
 }): React.ReactNode {
     const pathname = usePathname();
-    const currentPath = pathname.split("/").slice(2).join("/");
     const otherLang: LocalePage = lang === "en" ? "es" : "en";
-
-    const matchedTranslation = useMemo(() => {
-        if (!currentPath) return undefined;
-        return translations?.find((t) => {
-            const enSlug = (t)?.en?.slug;
-            const esSlug = (t)?.es?.slug;
-            return enSlug === currentPath || esSlug === currentPath;
-        });
-    }, [currentPath, translations]);
-
-    const newRoute = useMemo(() => {
-        const segments = pathname.split("/").filter(Boolean);
-        if (segments.length <= 1) return `/${otherLang}`;
-        if (matchedTranslation) {
-            const type = (matchedTranslation)?.type;
-            const targetSlug = (matchedTranslation)?.[otherLang]?.slug;
-            if (type === "page") {
-                if (!targetSlug) return `/${otherLang}`;
-                return `/${otherLang}/${targetSlug}`;
-            } else if (type === "project"){
-                if (!targetSlug) return `/${otherLang}`;
-                return `/${otherLang}/${type}/${targetSlug}`;
-            } else if (type === "projects-new") {
-                return `/${otherLang}/${type}`;
-            }
-        } else {
-            const type = segments[1];
-            if (type === "home"){
-                return `/${otherLang}`;
-            }
-            else if (type === "projects-new"){
-                return `/${otherLang}/${type}`;
-            } else {
-                return `/${otherLang}`;
-            }
-        }
-    }, [matchedTranslation, otherLang, pathname]);
+    const newRoute = useMemo(
+        () => getLocalizedHref(pathname, otherLang, translations),
+        [pathname, otherLang, translations],
+    );
 
     useEffect(() => {
         document.documentElement.setAttribute("lang", lang);

@@ -24,6 +24,7 @@
     "next-sanity": "^12.3.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "resend": "^6.20.0",
     "sanity": "^5.22.0",
     "sanity-plugin-internationalized-array": "^5.1.0",
     "sanity-plugin-simpler-color-input": "^4.0.0",
