@@ -26,7 +26,7 @@ export default function  ContactCTA(section: ContactCTA) {
     let newColorString: string = newColor.join('');
 
     return (
-        <section>
+        <section className="mt-0!">
             <Marquee color={newColorString}/>
             <div className="container p-lat h-screen md:min-h-240 md:h-[50vh] lg:h-screen" style={{ backgroundColor: newColorString}}> 
                 <div className="row h-full  justify-center items-center">

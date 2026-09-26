@@ -281,7 +281,7 @@ export default function OurClients(section: OurClients) {
     containerLogos.current = [];
 
     return (
-        <section id="our-clients" ref={containerObserver}>
+        <section id="our-clients" className="mt-0!" ref={containerObserver}>
             <div
                 className="container p-lat pt-green pb-green"
                 style={{ backgroundColor: newColorString }}
