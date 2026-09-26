@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     // 1) Enviar a admin (con reply-to del usuario si es válido)
     const adminPromise = resend.emails.send({
       from: "Contacto CL4N <hi@contact.cl4n.mx>",
-      to: ["luisa.aguirree.lu@gmail.com", "robejafet@gmail.com"],
+      to: ["julio@cl4n.mx", "edgar@cl4n.mx"],
       subject: `Contacto desde CL4N: ${safeSubject}`,
       html: `
         <p><b>Nombre:</b> ${safeName}</p>
