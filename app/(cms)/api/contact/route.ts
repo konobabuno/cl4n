@@ -23,8 +23,8 @@ export async function POST(req: NextRequest) {
 
     // 1) Enviar a admin (con reply-to del usuario si es válido)
     const adminPromise = resend.emails.send({
-      from: "Contacto CL4N <onboarding@resend.dev>",
-      to: ["robejafet@gmail.com"],
+      from: "Contacto CL4N <hi@contact.cl4n.mx>",
+      to: ["luisa.aguirree.lu@gmail.com", "robejafet@gmail.com"],
       subject: `Contacto desde CL4N: ${safeSubject}`,
       html: `
         <p><b>Nombre:</b> ${safeName}</p>
@@ -46,12 +46,12 @@ ${safeMessage}`,
     const userPromise =
       isValidEmail(safeCorreo)
         ? resend.emails.send({
-            from: "CL4N <onboarding@resend.dev>",
+            from: "CL4N <hi@contact.cl4n.mx>",
             to: [safeCorreo],
             subject: "Gracias por tu mensaje",
             html: `
               <p>¡Gracias por escribirnos! Te responderemos en breve.</p>
-              <p>Atte. <b>CL4N</b></p>
+              <p>Atte. CL4N </p>
             `,
             text: `¡Gracias por escribirnos! Te responderemos en breve.\n\nAtte. CL4N`,
           })
